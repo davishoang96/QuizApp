@@ -11,7 +11,7 @@ using QuizApp.Database;
 namespace QuizApp.Database.Migrations
 {
     [DbContext(typeof(QuizContext))]
-    [Migration("20241201064842_initdb")]
+    [Migration("20241201101016_initdb")]
     partial class initdb
     {
         /// <inheritdoc />
@@ -157,6 +157,25 @@ namespace QuizApp.Database.Migrations
                     b.HasIndex("QuizId");
 
                     b.ToTable("Submissions");
+                });
+
+            modelBuilder.Entity("QuizApp.Database.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("QuizApp.Database.Models.Answer", b =>
