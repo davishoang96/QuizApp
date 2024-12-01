@@ -4,8 +4,7 @@ on:
   pull_request:
     branches:
       - main
-      - migrate-blazor-autohttps://github.com/davishoang96/QuizApp/settings
-
+      
 jobs:
   build:
     runs-on: ubuntu-latest
