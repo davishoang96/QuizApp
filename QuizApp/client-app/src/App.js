@@ -1,25 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.js
+import React, { useEffect, useState } from "react";
+import { fetchWeather } from "./services/api";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => {
+    const [weather, setWeather] = useState([]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const data = await fetchWeather();
+            setWeather(data);
+        };
+        loadData();
+    }, []);
+
+    return (
+        <div>
+            <h1>Weather Forecast</h1>
+            <ul>
+                {weather.map((item, index) => (
+                    <li key={index}>{item.summary}</li>
+                ))}
+            </ul>
+        </div>
+    );
+};
 
 export default App;
