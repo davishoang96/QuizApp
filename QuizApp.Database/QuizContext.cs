@@ -16,6 +16,7 @@ public class QuizContext : DbContext
     public DbSet<Choice> Choices { get; set; } = null!;
     public DbSet<Submission> Submissions { get; set; } = null!;
     public DbSet<Answer> Answers { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

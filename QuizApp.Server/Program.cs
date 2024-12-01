@@ -19,8 +19,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+var dataSource = builder.Configuration["DataSource"];
 builder.Services.AddDbContext<QuizContext>(options =>
-    options.UseSqlite($"Data Source=quiz.db"));
+    options.UseSqlite($"Data Source={dataSource}"));
 
 var app = builder.Build();
 
