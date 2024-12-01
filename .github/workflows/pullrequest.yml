@@ -21,6 +21,9 @@ jobs:
       - name: dotnet build
         run: dotnet build --configuration Release
 
+      - name: dotnet test
+        run: dotnet test --verbosity normal
+
   build_react:
     runs-on: ubuntu-latest
     steps:
