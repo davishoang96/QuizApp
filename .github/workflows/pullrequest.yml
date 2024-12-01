@@ -1,0 +1,40 @@
+name: BTA.QuizApp
+
+on:
+  pull_request:
+    branches:
+      - main
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '9.x'
+          include-prerelease: true
+
+      - name: dotnet build
+        run: dotnet build --configuration Release
+
+  # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Install dependencies for React app
+      - name: Install React dependencies
+        run: |
+          cd QuizApp.Client
+          npm install
+
+      # Build the React app
+      - name: Build React app
+        run: |
+          cd QuizApp.Client
+          npm run build
