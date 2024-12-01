@@ -8,6 +8,11 @@ yarn-error.log*
 build/
 dist/
 
+# SQLite Database
+*.db
+*.db-shm
+*.db-wal
+
 # React environment files
 .env
 .env.local
