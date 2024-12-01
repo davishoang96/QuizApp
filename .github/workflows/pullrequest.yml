@@ -4,12 +4,12 @@ on:
   pull_request:
     branches:
       - main
-      
+
 jobs:
-  build:
+  build_dotnet:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up .NET Core
@@ -21,19 +21,22 @@ jobs:
       - name: dotnet build
         run: dotnet build --configuration Release
 
-  # Set up Node.js
+  build_react:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+       
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # Install dependencies for React app
       - name: Install React dependencies
         run: |
           cd QuizApp.Client
           npm install
 
-      # Build the React app
       - name: Build React app
         run: |
           cd QuizApp.Client
