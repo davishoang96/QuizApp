@@ -1,0 +1,23 @@
+name: BTA.QuizApp
+
+on:
+  pull_request:
+    branches:
+      - main
+      - migrate-blazor-auto
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '9.x'
+          include-prerelease: true
+
+      - name: dotnet build
+        run: dotnet build --configuration Release
