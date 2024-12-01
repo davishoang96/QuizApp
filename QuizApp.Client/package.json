@@ -19,7 +19,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start:backend": "dotnet run --project ../QuizApp.Server",
+    "start:frontend": "react-scripts start",
+    "start:all": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -41,5 +43,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
   }
 }
