@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchWeather } from "./services/api";
+import { Button, DatePicker } from 'antd';
 
 // Define a TypeScript interface for the weather data structure
 interface WeatherData {
@@ -29,6 +30,10 @@ const App: React.FC = () => {
               <li key={index}>{item.summary}</li>
           ))}
         </ul>
+
+        <Button type="primary">PRESS ME</Button>
+        <DatePicker placeholder="select date" />
+
       </div>
   );
 };
