@@ -9,6 +9,11 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
@@ -17,6 +22,10 @@
       <_ContentIncludedByDefault Remove="client-app\package-lock.json" />
       <_ContentIncludedByDefault Remove="client-app\package.json" />
       <_ContentIncludedByDefault Remove="client-app\public\manifest.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\QuizApp.Database\QuizApp.Database.csproj" />
     </ItemGroup>
 
 </Project>
