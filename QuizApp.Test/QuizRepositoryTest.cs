@@ -3,6 +3,7 @@ using QuizApp.Database.Repositories;
 using Xunit;
 using FluentAssertions;
 using QuizApp.Database.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace QuizApp.Test;
 
@@ -32,11 +33,11 @@ public sealed class QuizRepositoryTest : BaseRepoTest
     }
 
     [Fact]
-    public async Task CreateQuestionOK()
+    public async Task CreateQuestionWithAnswer()
     {
         // Arrange
         var quizId = 1;
-        var question = "Who create macos?";
+        var questionTitle = "What is the capital of France?";
         using (var setupContext = new QuizContext(Options))
         {
             // Ensure the database is clean
@@ -47,19 +48,28 @@ public sealed class QuizRepositoryTest : BaseRepoTest
             setupContext.Quizzes.Add(new Quiz
             {
                 Id = quizId,
-                QuizName = "Technology Quiz",
-                Description = "A quiz about technology.",
+                QuizName = "General Knowledge",
+                Description = "GK",
             });
             await setupContext.SaveChangesAsync();
         }
 
+        var answers = new List<(string Text, bool IsCorrect)>
+        {
+            ("Paris", true),
+            ("London", false),
+            ("Berlin", false),
+            ("Madrid", false)
+        };
+
         // Act
-        var result = await quizRepository.CreateQuestion(quizId, question);
-        
+        var result = await quizRepository.CreateQuestion(quizId, questionTitle, answers);
+
         // Assert
         result.Should().NotBe(0);
         using var context = new QuizContext(Options);
         var model = context.Questions.SingleOrDefault(s => s.Id == 4);
-        model?.Title.Should().Be(question);
+        model?.Title.Should().Be(questionTitle);
+        context.Answers.Count().Should().Be(4);
     }
 }

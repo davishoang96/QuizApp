@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using QuizApp.Database.Models;
 
 namespace QuizApp.Database.Repositories;
@@ -23,25 +24,35 @@ public class QuizRepository : IQuizRepository
         return model.Entity.Id;
     }
 
-    public async Task<int> CreateQuestion(int quizId, string question)
+    public async Task<int> CreateQuestion(int quizId, string question, List<(string text, bool isCorrect)> answers)
     {
         var quizModel = db.Quizzes.SingleOrDefault(x => x.Id == quizId);
         if (quizModel is null)
         {
-            throw new InvalidOperationException($"Cannot found quiz id = {quizId}");
+            throw new InvalidOperationException($"Cannot find quiz with id = {quizId}");
         }
 
         var questionModel = new Question
         {
             QuizId = quizModel.Id,
-            Quiz = quizModel,    
+            Quiz = quizModel,
             Title = question,
         };
-        
-        var result = db.Questions.Add(questionModel);
-        
+
+        foreach (var (text, isCorrect) in answers)
+        {
+            var answer = new Answer
+            {
+                Text = text,
+                IsCorrect = isCorrect,
+                Question = questionModel // Automatically sets the QuestionId due to EF Core navigation properties
+            };
+            questionModel.Answers.Add(answer);
+        }
+
+        db.Questions.Add(questionModel);
         await db.SaveChangesAsync();
-        
-        return result.Entity.Id;
+
+        return questionModel.Id;
     }
 }
