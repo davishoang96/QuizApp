@@ -13,16 +13,36 @@ public class QuizRepository : IQuizRepository
         this.db = db;
     }
 
-    public async Task<int> CreateQuiz(string name)
+    public async Task<int> SaveOrUpdateQuiz(QuizDTO quizDTO)
     {
-        var model = db.Add(new Quiz
+        Quiz quiz;
+
+        if (!quizDTO.Id.HasValue)
         {
-            QuizName = name,
-        });
+            quiz = new Quiz
+            {
+                QuizName = quizDTO.Name,
+                Description = quizDTO.Description,
+            };
+
+            db.Add(quiz);
+        }
+        else
+        {
+            quiz = await db.Quizzes.FindAsync(quizDTO.Id.Value);
+            if (quiz == null)
+            {
+                throw new InvalidOperationException($"Quiz with ID {quizDTO.Id.Value} not found.");
+            }
+
+            quiz.QuizName = quizDTO.Name;
+            quiz.Description = quizDTO.Description;
+            db.Entry(quiz).State = EntityState.Modified;
+        }
 
         await db.SaveChangesAsync();
-        
-        return model.Entity.Id;
+
+        return quiz.Id;
     }
 
     public async Task<int> CreateQuestion(int quizId, string question, List<(string text, bool isCorrect)> answers)
@@ -65,7 +85,7 @@ public class QuizRepository : IQuizRepository
             {
                 Id = q.Id,
                 Title = q.Title,
-                Answers = q.Answers.Select(a => new AnswerDto
+                Answers = q.Answers.Select(a => new AnswerDTO
                 {
                     Id = a.Id,
                     Text = a.Text,
