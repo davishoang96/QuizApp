@@ -1,9 +1,8 @@
+using FluentAssertions;
 using QuizApp.Database;
+using QuizApp.Database.Models;
 using QuizApp.Database.Repositories;
 using Xunit;
-using FluentAssertions;
-using QuizApp.Database.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace QuizApp.Test;
 
@@ -71,5 +70,49 @@ public sealed class QuizRepositoryTest : BaseRepoTest
         var model = context.Questions.SingleOrDefault(s => s.Id == 4);
         model?.Title.Should().Be(questionTitle);
         context.Answers.Count().Should().Be(4);
+    }
+
+    [Fact]
+    public async Task GetQuestionsOK()
+    {
+        // Arrange
+        var questionTitle = "What is the capital of France?";
+
+        using (var setupContext = new QuizContext(Options))
+        {
+            // Ensure the database is clean
+            await setupContext.Database.EnsureDeletedAsync();
+            await setupContext.Database.EnsureCreatedAsync();
+
+            // Seed the required quiz
+            setupContext.Quizzes.Add(new Quiz
+            {
+                Id = 1,
+                QuizName = "General Knowledge",
+                Description = "GK",
+            });
+
+            setupContext.Questions.Add(new Question
+            {
+                QuizId = 1,
+                Title = questionTitle,
+                Answers = new List<Answer>
+                {
+                    new Answer { Text = "Paris", IsCorrect = true },
+                    new Answer { Text = "London", IsCorrect = false }
+                }
+            });
+
+            await setupContext.SaveChangesAsync();
+        }
+
+        // Act
+        var result = await quizRepository.GetQuestions();
+
+        // Assert
+        result.Should().NotBeEmpty();
+        result.First().Title.Should().Be(questionTitle);    
+        result.First().Answers.Count().Should().Be(2);
+        result.First().Answers.First(s => s.IsCorrect).Text.Should().Be("Paris");
     }
 }

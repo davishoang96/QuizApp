@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using QuizApp.Common.DTO;
 using QuizApp.Database.Models;
 
 namespace QuizApp.Database.Repositories;
@@ -54,5 +55,23 @@ public class QuizRepository : IQuizRepository
         await db.SaveChangesAsync();
 
         return questionModel.Id;
+    }
+
+    public async Task<IEnumerable<QuestionDTO>> GetQuestions()
+    {
+        return await db.Questions
+            .Include(q => q.Answers) // Include related answers
+            .Select(q => new QuestionDTO
+            {
+                Id = q.Id,
+                Title = q.Title,
+                Answers = q.Answers.Select(a => new AnswerDto
+                {
+                    Id = a.Id,
+                    Text = a.Text,
+                    IsCorrect = a.IsCorrect
+                }).ToList()
+            })
+            .ToListAsync();
     }
 }
