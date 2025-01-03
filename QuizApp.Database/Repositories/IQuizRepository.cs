@@ -1,5 +1,4 @@
 using QuizApp.Common.DTO;
-using QuizApp.Database.Models;
 
 namespace QuizApp.Database.Repositories;
 

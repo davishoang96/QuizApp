@@ -60,18 +60,18 @@ public class QuizRepository : IQuizRepository
     public async Task<IEnumerable<QuestionDTO>> GetQuestions()
     {
         return await db.Questions
-        .Include(q => q.Answers) // Include related answers
-        .Select(q => new QuestionDTO
-        {
-            Id = q.Id,
-            Title = q.Title,
-            Answers = q.Answers.Select(a => new AnswerDto
+            .Include(q => q.Answers) // Include related answers
+            .Select(q => new QuestionDTO
             {
-                Id = a.Id,
-                Text = a.Text,
-                IsCorrect = a.IsCorrect
-            }).ToList()
-        })
-        .ToListAsync();
+                Id = q.Id,
+                Title = q.Title,
+                Answers = q.Answers.Select(a => new AnswerDto
+                {
+                    Id = a.Id,
+                    Text = a.Text,
+                    IsCorrect = a.IsCorrect
+                }).ToList()
+            })
+            .ToListAsync();
     }
 }
