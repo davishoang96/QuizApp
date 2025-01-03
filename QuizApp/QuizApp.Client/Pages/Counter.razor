@@ -1,19 +1,46 @@
 ﻿@page "/counter"
 @rendermode InteractiveAuto
+@inject IApiClient apiClient; 
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using QuizApp.Client.HttpClient
 
 <PageTitle>Counter</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <a href="Account/logout">Logout</a>
+    </Authorized>
+    <NotAuthorized>
+        <a href="Account/login">Login</a>
+    </NotAuthorized>
+</AuthorizeView>
 
 <h1>Counter</h1>
 
 <p role="status">Current count: @currentCount</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="CallSecureEndpoint">Click me</button>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
     private int currentCount = 0;
 
     private void IncrementCount()
     {
         currentCount++;
+    }
+
+    private async Task CallSecureEndpoint()
+    {
+        try
+        {
+            var response = await apiClient.GetScoreEndpointAsync();
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            ex.Redirect();
+        }
     }
 }
