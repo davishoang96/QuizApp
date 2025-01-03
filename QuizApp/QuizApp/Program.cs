@@ -1,14 +1,55 @@
+using Auth0.AspNetCore.Authentication;
+using FastEndpoints;
+using FastEndpoints.ClientGen;
+using FastEndpoints.Swagger;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
-using QuizApp.Client.Pages;
+using NJsonSchema.CodeGeneration.CSharp;
+using QuizApp;
+using QuizApp.AuthenticationStateSyncer;
+using QuizApp.Client.HttpClient;
 using QuizApp.Components;
 using QuizApp.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllers();
+#region Auth0 Setup
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<TokenHandler>();
+builder.Services.AddAuth0WebAppAuthentication(options =>
+{
+    options.Domain = builder.Configuration["Auth0:Domain"];
+    options.ClientId = builder.Configuration["Auth0:ClientId"];
+});
+
+var baseUrl = builder.Configuration["BaseUrl"];
+
+builder.Services.AddHttpClient("QuizAppApi", client =>
+{
+    client.BaseAddress = new Uri(baseUrl);
+});
+
+builder.Services.AddScoped<IApiClient>(sp =>
+{
+    var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient("QuizAppApi");
+    return new ApiClient(baseUrl, httpClient);
+});
+
+builder.Services.AddFastEndpoints().SwaggerDocument(o =>
+{
+    o.ShortSchemaNames = true; // prevent adding namespace as prefix to classes.
+    o.DocumentSettings = s => s.DocumentName = "QuizAppApi"; //must match doc name below
+});
+
+#endregion
+
+builder.Services.AddEndpointsApiExplorer();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
@@ -25,7 +66,6 @@ using (var scope = ((IApplicationBuilder)app).ApplicationServices.GetService<ISe
     scope.ServiceProvider.GetRequiredService<QuizContext>().Database.Migrate();
 }
 
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -38,8 +78,11 @@ else
     app.UseHsts();
 }
 
+// Enable Authentication and Authorization
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseHttpsRedirection();
-app.MapControllers();
 
 app.UseAntiforgery();
 
@@ -48,5 +91,44 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(QuizApp.Client._Imports).Assembly);
+
+app.MapGet("/Account/Login", async (HttpContext httpContext, string returnUrl = "/") =>
+{
+    var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
+            .WithRedirectUri(returnUrl)
+            .Build();
+
+    await httpContext.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
+});
+
+app.MapGet("/Account/Logout", async (HttpContext httpContext) =>
+{
+    var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()
+            .WithRedirectUri("/")
+            .Build();
+
+    await httpContext.SignOutAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
+    await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+});
+
+// Use FastEndpoints
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.ShortNames = true;
+    c.Serializer.Options.PropertyNamingPolicy = null;
+}).UseSwaggerGen();
+
+await app.GenerateClientsAndExitAsync(
+    documentName: "QuizAppApi",
+    destinationPath: "../QuizApp.Client/HttpClient",
+    csSettings: c =>
+    {
+        c.ClassName = "ApiClient";
+        c.InjectHttpClient = true;
+        c.GenerateClientInterfaces = true;
+        c.CSharpGeneratorSettings.Namespace = "QuizApp.Client.HttpClient";
+        c.CSharpGeneratorSettings.JsonLibrary = CSharpJsonLibrary.NewtonsoftJson;
+    },
+    tsSettings: null);
 
 app.Run();
