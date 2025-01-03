@@ -74,4 +74,53 @@ public class QuizRepository : IQuizRepository
             })
             .ToListAsync();
     }
+
+    public async Task<int> SaveSubmissionAsync(int userId, int quizId, IEnumerable<UserAnswerDTO> userAnswers)
+    {
+        // Validate quiz exists
+        var quiz = await db.Quizzes
+            .Include(q => q.Questions)
+                .ThenInclude(q => q.Answers)
+            .SingleOrDefaultAsync(q => q.Id == quizId);
+
+        if (quiz == null)
+            throw new InvalidOperationException($"Quiz with ID {quizId} not found.");
+
+        // Validate all questions are answered
+        if (quiz.Questions.Count != userAnswers.Count())
+            throw new InvalidOperationException("User has not answered all questions.");
+
+        // Calculate score
+        var userCorrectAnswers = 0;
+        foreach (var question in quiz.Questions)
+        {
+            var userAnswer = userAnswers.SingleOrDefault(ua => ua.QuestionId == question.Id);
+            if (userAnswer == null)
+                throw new InvalidOperationException($"No answer provided for question ID {question.Id}.");
+
+            var correctAnswer = question.Answers.SingleOrDefault(a => a.IsCorrect);
+            if (correctAnswer == null)
+                throw new InvalidOperationException($"No correct answer defined for question ID {question.Id}.");
+
+            if (userAnswer.SelectedAnswerId == correctAnswer.Id)
+                userCorrectAnswers++;
+        }
+
+        int totalQuestions = quiz.Questions.Count;
+        var score = Math.Ceiling((userCorrectAnswers / (double)totalQuestions) * 100);
+
+        // Create submission
+        var submission = new Submission
+        {
+            UserId = userId,
+            QuizId = quizId,
+            AttemptDate = DateTime.Now,
+            Score = score
+        };
+
+        db.Submissions.Add(submission);
+        await db.SaveChangesAsync();
+
+        return submission.Id;
+    }
 }

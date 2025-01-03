@@ -7,5 +7,5 @@ public class Submission : BaseModel
     public int QuizId { get; set; }
     public Quiz Quiz { get; set; } = null!;
     public DateTime AttemptDate { get; set; }
-    public int Score { get; set; }
+    public double Score { get; set; }
 }
