@@ -1,8 +1,10 @@
 using FluentAssertions;
+using QuizApp.Common.DTO;
 using QuizApp.Database;
 using QuizApp.Database.Models;
 using QuizApp.Database.Repositories;
 using Xunit;
+using TheoryAttribute = Xunit.TheoryAttribute;
 
 namespace QuizApp.Test;
 
@@ -114,5 +116,107 @@ public sealed class QuizRepositoryTest : BaseRepoTest
         result.First().Title.Should().Be(questionTitle);    
         result.First().Answers.Count().Should().Be(2);
         result.First().Answers.First(s => s.IsCorrect).Text.Should().Be("Paris");
+    }
+
+    [Theory]
+    [InlineData(100, 12)]
+    [InlineData(67, 11)]
+    public async Task SaveSubmissionOK(int score, int selectedAnswerId)
+    {
+        // Arrange
+        using (var setupContext = new QuizContext(Options))
+        {
+            // Ensure the database is clean
+            await setupContext.Database.EnsureDeletedAsync();
+            await setupContext.Database.EnsureCreatedAsync();
+
+            setupContext.Users.Add(new User
+            {
+                Id = 1,
+                Email = "johnDoe@gmail.com",
+                JoinDate = DateTime.Now,
+                Role = "Student",
+                Username = "johndoe",
+            });
+
+            // Seed the required quiz
+            setupContext.Quizzes.Add(new Quiz
+            {
+                Id = 1,
+                QuizName = "General Knowledge",
+                Description = "GK",
+            });
+
+            setupContext.Questions.Add(new Question
+            {
+                QuizId = 1,
+                Title = "What is the capital of France?",
+                Answers = new List<Answer>
+                {
+                    new Answer { Text = "Paris", IsCorrect = true },
+                    new Answer { Text = "London", IsCorrect = false },
+                    new Answer { Text = "Ha Noi", IsCorrect = false },
+                    new Answer { Text = "Essex", IsCorrect = false },
+                }
+            });
+
+            setupContext.Questions.Add(new Question
+            {
+                QuizId = 1,
+                Title = "What is the capital of Australia?",
+                Answers = new List<Answer>
+                {
+                    new Answer { Text = "Perth", IsCorrect = false },
+                    new Answer { Text = "Darwin", IsCorrect = false },
+                    new Answer { Text = "Sydney", IsCorrect = false },
+                    new Answer { Text = "Canberra", IsCorrect = true }
+                }
+            });
+
+            setupContext.Questions.Add(new Question
+            {
+                QuizId = 1,
+                Title = "How many planets in our solar system?",
+                Answers = new List<Answer>
+                {
+                    new Answer { Text = "1", IsCorrect = false },
+                    new Answer { Text = "5", IsCorrect = false },
+                    new Answer { Text = "9", IsCorrect = false },
+                    new Answer { Text = "8", IsCorrect = true }
+                }
+            });
+
+            await setupContext.SaveChangesAsync();
+        }
+
+        var listOfAnswers = new List<UserAnswerDTO>
+        {
+            new UserAnswerDTO
+            {
+                QuestionId = 1,
+                SelectedAnswerId = 1,
+            },
+            new UserAnswerDTO
+            {
+                QuestionId = 2,
+                SelectedAnswerId = 8,
+            },
+            new UserAnswerDTO
+            {
+                QuestionId = 3,
+                SelectedAnswerId = selectedAnswerId,
+            }
+        };
+
+        // Act
+        var result = await quizRepository.SaveSubmissionAsync(1, 1, listOfAnswers);
+
+        // Assert
+        result.Should().NotBe(0);
+        using var context = new QuizContext(Options);
+        var submission = context.Submissions.First();
+        context.Submissions.Count().Should().Be(1);
+        submission.UserId.Should().Be(1);
+        submission.Score.Should().Be(score);
     }
 }
