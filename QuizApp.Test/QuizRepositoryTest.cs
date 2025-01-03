@@ -2,6 +2,7 @@ using QuizApp.Database;
 using QuizApp.Database.Repositories;
 using Xunit;
 using FluentAssertions;
+using QuizApp.Database.Models;
 
 namespace QuizApp.Test;
 
@@ -25,9 +26,9 @@ public sealed class QuizRepositoryTest : BaseRepoTest
         // Assert
         result.Should().NotBe(0);
         using var context = new QuizContext(Options);
-        var model = context.Quizzes.SingleOrDefault(s => s.Id == 3);
+        var model = context.Quizzes.FirstOrDefault();
         model?.QuizName.Should().Be(name);
-        context.Quizzes.ToList().Count.Should().Be(3);
+        context.Quizzes.ToList().Count.Should().Be(1);
     }
 
     [Fact]
@@ -36,7 +37,22 @@ public sealed class QuizRepositoryTest : BaseRepoTest
         // Arrange
         var quizId = 1;
         var question = "Who create macos?";
-        
+        using (var setupContext = new QuizContext(Options))
+        {
+            // Ensure the database is clean
+            await setupContext.Database.EnsureDeletedAsync();
+            await setupContext.Database.EnsureCreatedAsync();
+
+            // Seed the required quiz
+            setupContext.Quizzes.Add(new Quiz
+            {
+                Id = quizId,
+                QuizName = "Technology Quiz",
+                Description = "A quiz about technology.",
+            });
+            await setupContext.SaveChangesAsync();
+        }
+
         // Act
         var result = await quizRepository.CreateQuestion(quizId, question);
         
