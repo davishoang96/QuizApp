@@ -1,3 +1,5 @@
+using System.Data;
+using QuizApp.Common.DTO;
 using QuizApp.Database.Models;
 
 namespace QuizApp.Database.Repositories;
@@ -17,6 +19,22 @@ public class UserRepository : IUserRepository
         {
             Username = username,
             Role = role
+        });
+
+        await db.SaveChangesAsync();
+
+        return user.Entity.Id;
+    }
+
+    public async Task<int> CreateUser(CreateUserDTO createUserDTO)
+    {
+        var user = await db.AddAsync(new User
+        {
+            FullName = createUserDTO.FullName,
+            Username = createUserDTO.Username,
+            Role = createUserDTO.Role,
+            Email = createUserDTO.Email,
+            JoinDate = DateTime.Now,
         });
 
         await db.SaveChangesAsync();

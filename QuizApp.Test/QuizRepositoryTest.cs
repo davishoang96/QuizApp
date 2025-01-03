@@ -137,6 +137,7 @@ public sealed class QuizRepositoryTest : BaseRepoTest
                 JoinDate = DateTime.Now,
                 Role = "Student",
                 Username = "johndoe",
+                FullName = "John Doe"
             });
 
             // Seed the required quiz
