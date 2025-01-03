@@ -23,7 +23,11 @@ public sealed class QuizRepositoryTest : BaseRepoTest
         var name = "PTE";
         
         // Act
-        var result = await quizRepository.CreateQuiz(name);
+        var result = await quizRepository.SaveOrUpdateQuiz(new QuizDTO
+        {
+            Name = name,
+            Description = name,
+        });
         
         // Assert
         result.Should().NotBe(0);
@@ -31,6 +35,42 @@ public sealed class QuizRepositoryTest : BaseRepoTest
         var model = context.Quizzes.FirstOrDefault();
         model?.QuizName.Should().Be(name);
         context.Quizzes.ToList().Count.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task UpdateQuizOK()
+    {
+        // Arrange
+        using (var setupContext = new QuizContext(Options))
+        {
+            // Ensure the database is clean
+            await setupContext.Database.EnsureDeletedAsync();
+            await setupContext.Database.EnsureCreatedAsync();
+
+            // Seed the required quiz
+            setupContext.Quizzes.Add(new Quiz
+            {
+                Id = 1,
+                QuizName = "General Knowledge",
+                Description = "GK",
+            });
+            await setupContext.SaveChangesAsync();
+        }
+
+        // Act
+        var result = await quizRepository.SaveOrUpdateQuiz(new QuizDTO
+        {
+            Id = 1,
+            Name = "Science",
+            Description = "Science"
+        });
+
+        // Assert
+        result.Should().NotBe(0);
+        using var context = new QuizContext(Options);
+        var model = context.Quizzes.FirstOrDefault();
+        model?.QuizName.Should().Be("Science");
+        model?.Description.Should().Be("Science");
     }
 
     [Fact]
@@ -137,7 +177,7 @@ public sealed class QuizRepositoryTest : BaseRepoTest
                 JoinDate = DateTime.Now,
                 Role = "Student",
                 Username = "johndoe",
-                FullName = "John Doe"
+                FullName = "John Doe",
             });
 
             // Seed the required quiz
