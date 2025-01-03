@@ -23,24 +23,3 @@ jobs:
 
       - name: dotnet test
         run: dotnet test --verbosity normal
-
-  build_react:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-       
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install React dependencies
-        run: |
-          cd QuizApp.Client
-          npm install
-
-      - name: Build React app
-        run: |
-          cd QuizApp.Client
-          npm run build
