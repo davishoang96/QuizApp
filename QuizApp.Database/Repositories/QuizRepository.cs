@@ -143,4 +143,14 @@ public class QuizRepository : IQuizRepository
 
         return submission.Id;
     }
+
+    public async Task<IEnumerable<QuizDTO>> GetAllQuizzes()
+    {
+        return await db.Quizzes.Select(q => new QuizDTO
+        {
+            Id = q.Id,
+            Description = q.Description,
+            Name = q.QuizName,
+        }).ToListAsync();
+    }
 }
