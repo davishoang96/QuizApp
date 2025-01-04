@@ -1,0 +1,97 @@
+﻿@* @page "/quizzes"
+@using QuizApp.Api
+@using QuizApp.Common.DTO
+@inject IQuizApiClient QuizService
+
+<h3>Quiz List</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="AddNewQuiz">Add New Quiz</button>
+</div>
+
+@if (Quizzes == null)
+{
+    <p>Loading...</p>
+}
+else if (!Quizzes.Any())
+{
+    <p>No quizzes available.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var quiz in Quizzes)
+            {
+                <tr>
+                    <td>@quiz.Id</td>
+                    <td>@quiz.Name</td>
+                    <td>@quiz.Description</td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" @onclick="() => EditQuiz(quiz.Id)">Edit</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteQuiz(quiz.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@* <SaveQuizModal @ref="SaveQuizModal" OnSave="ReloadQuizzes" /> *@
+
+@code {
+    private List<Common.DTO.QuizDTO> Quizzes { get; set; } = new List<Common.DTO.QuizDTO>();
+    //private SaveQuizModal SaveQuizModal { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadQuizzes();
+    }
+
+    private async Task LoadQuizzes()
+    {
+        var result = await QuizService.GetQuizzesEndpointAsync();
+        if(result.Any())
+        {
+            //Quizzes = result.ToList();
+        }
+    }
+
+    private async Task ReloadQuizzes()
+    {
+        await LoadQuizzes();
+    }
+
+    private void AddNewQuiz()
+    {
+        //SaveQuizModal.Show(new QuizDTO());
+    }
+
+    private void EditQuiz(int quizId)
+    {
+        var quizToEdit = Quizzes.FirstOrDefault(q => q.Id == quizId);
+        if (quizToEdit != null)
+        {
+            //SaveQuizModal.Show(quizToEdit);
+        }
+    }
+
+    private async Task DeleteQuiz(int quizId)
+    {
+        // var confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete Quiz #{quizId}?");
+        // if (confirm)
+        // {
+        //     await QuizService.DeleteQuizAsync(quizId);
+        //     await ReloadQuizzes();
+        // }
+    }
+}
+ *@

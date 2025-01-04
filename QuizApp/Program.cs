@@ -10,8 +10,8 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using NJsonSchema.CodeGeneration.CSharp;
 using QuizApp;
+using QuizApp.Api;
 using QuizApp.AuthenticationStateSyncer;
-using QuizApp.Client.HttpClient;
 using QuizApp.Components;
 using QuizApp.Database;
 
@@ -41,10 +41,10 @@ builder.Services.AddHttpClient("QuizAppApi", client =>
     client.BaseAddress = new Uri(baseUrl);
 });
 
-builder.Services.AddScoped<IApiClient>(sp =>
+builder.Services.AddScoped<IQuizApiClient>(sp =>
 {
     var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient("QuizAppApi");
-    return new ApiClient(baseUrl, httpClient);
+    return new QuizApiClient(baseUrl, httpClient);
 });
 
 builder.Services.AddFastEndpoints().SwaggerDocument(o =>
@@ -134,6 +134,7 @@ await app.GenerateClientsAndExitAsync(
         c.ClassName = "QuizApiClient";
         c.InjectHttpClient = true;
         c.GenerateClientInterfaces = true;
+        c.GenerateDtoTypes = false;
         c.CSharpGeneratorSettings.Namespace = "QuizApp.Api";
         c.CSharpGeneratorSettings.JsonLibrary = CSharpJsonLibrary.NewtonsoftJson;
     },
