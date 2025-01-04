@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using QuizApp.Api;
 using QuizApp.Client.AuthenticationStateSyncer;
+using Radzen;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.Services.AddAuthorizationCore();
@@ -18,5 +19,6 @@ builder.Services.AddScoped<IQuizApiClient>(sp =>
     var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient("QuizAppApi");
     return new QuizApiClient(builder.HostEnvironment.BaseAddress, httpClient);
 });
+builder.Services.AddRadzenComponents();
 
 await builder.Build().RunAsync();

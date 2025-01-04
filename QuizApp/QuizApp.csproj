@@ -22,6 +22,7 @@
 		<PrivateAssets>all</PrivateAssets>
 		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	</PackageReference>
+	<PackageReference Include="Radzen.Blazor" Version="5.7.2" />
 </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QuizApp.Api\QuizApp.Api.csproj" />

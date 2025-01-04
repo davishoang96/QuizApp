@@ -14,6 +14,7 @@ using QuizApp.Api;
 using QuizApp.AuthenticationStateSyncer;
 using QuizApp.Components;
 using QuizApp.Database;
+using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,6 +66,8 @@ builder.Services.AddRazorComponents()
 var dataSource = builder.Configuration["DataSource"];
 builder.Services.AddDbContext<QuizContext>(options =>
     options.UseSqlite($"Data Source={dataSource}"));
+
+builder.Services.AddRadzenComponents();
 
 var app = builder.Build();
 
