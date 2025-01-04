@@ -17,6 +17,42 @@ public sealed class QuizRepositoryTest : BaseRepoTest
     }
 
     [Fact]
+    public async Task GetAllQuizzesOK()
+    {
+        // Arrange
+        using (var setupContext = new QuizContext(Options))
+        {
+            // Ensure the database is clean
+            await setupContext.Database.EnsureDeletedAsync();
+            await setupContext.Database.EnsureCreatedAsync();
+
+            // Seed the required quiz
+            setupContext.Quizzes.Add(new Quiz
+            {
+                QuizName = "General Knowledge",
+                Description = "GK",
+            });
+            setupContext.Quizzes.Add(new Quiz
+            {
+                QuizName = "Science",
+                Description = "Science",
+            });
+            setupContext.Quizzes.Add(new Quiz
+            {
+                QuizName = "PTE",
+                Description = "PTE",
+            });
+            await setupContext.SaveChangesAsync();
+        }
+
+        // Act
+        var result = await quizRepository.GetAllQuizzes();
+
+        // Assert
+        result.Count().Should().Be(3);
+    }
+
+    [Fact]
     public async Task CreateQuizOK()
     {
         // Arrange
