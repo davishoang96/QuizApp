@@ -24,6 +24,7 @@
 	</PackageReference>
 </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\QuizApp.Api\QuizApp.Api.csproj" />
     <ProjectReference Include="..\QuizApp.Database\QuizApp.Database.csproj" />
     <ProjectReference Include="..\QuizApp.Client\QuizApp.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.0" />

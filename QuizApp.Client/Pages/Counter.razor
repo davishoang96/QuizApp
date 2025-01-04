@@ -1,20 +1,9 @@
 ﻿@page "/counter"
 @rendermode InteractiveAuto
-@inject IApiClient apiClient; 
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-@using QuizApp.Client.HttpClient
 
 <PageTitle>Counter</PageTitle>
-
-<AuthorizeView>
-    <Authorized>
-        <a href="Account/logout">Logout</a>
-    </Authorized>
-    <NotAuthorized>
-        <a href="Account/login">Login</a>
-    </NotAuthorized>
-</AuthorizeView>
 
 <h1>Counter</h1>
 
@@ -34,13 +23,13 @@
 
     private async Task CallSecureEndpoint()
     {
-        try
-        {
-            var response = await apiClient.GetScoreEndpointAsync();
-        }
-        catch (AccessTokenNotAvailableException ex)
-        {
-            ex.Redirect();
-        }
+        // try
+        // {
+        //     var response = await apiClient.GetScoreEndpointAsync();
+        // }
+        // catch (AccessTokenNotAvailableException ex)
+        // {
+        //     ex.Redirect();
+        // }
     }
 }
