@@ -5,9 +5,7 @@
 
 <h3>Quiz Manager</h3>
 
-<div class="mb-3">
-    <button class="btn btn-primary" @onclick="AddNewQuiz">Add New Quiz</button>
-</div>
+<RadzenButton>Add Quiz</RadzenButton>
 
 @if (Quizzes == null)
 {
@@ -19,28 +17,17 @@ else if (!Quizzes.Any())
 }
 else
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var quiz in Quizzes)
-            {
-                <tr>
-                    <td>@quiz.Name</td>
-                    <td>@quiz.Description</td>
-                    <td>
-                        <button class="btn btn-secondary btn-sm">Edit</button>
-                        <button class="btn btn-danger btn-sm">Delete</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <RadzenDataGrid ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@Quizzes" TItem="QuizDTO">
+        <Columns>
+            <RadzenDataGridColumn Property="@(nameof(QuizDTO.Name))" Title="Name" Width="140px" />
+            <RadzenDataGridColumn Property="@(nameof(QuizDTO.Description))" Title="Description" />
+            <RadzenDataGridColumn Width="100px" Title="Actions">
+                <Template Context="data">
+                    <RadzenButton Icon="delete" Class="rz-button rz-danger" Style="margin-left: 5px" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
 }
 
 @* <SaveQuizModal @ref="SaveQuizModal" OnSave="ReloadQuizzes" /> *@
