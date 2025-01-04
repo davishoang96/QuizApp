@@ -45,33 +45,74 @@ public class QuizRepository : IQuizRepository
         return quiz.Id;
     }
 
-    public async Task<int> CreateQuestion(int quizId, string question, List<(string text, bool isCorrect)> answers)
+    public async Task<int> SaveOrUpdateQuestion(QuestionDTO questionDto)
     {
-        var quizModel = db.Quizzes.SingleOrDefault(x => x.Id == quizId);
+        var quizModel = db.Quizzes.SingleOrDefault(x => x.Id == questionDto.QuizId);
         if (quizModel is null)
         {
-            throw new InvalidOperationException($"Cannot find quiz with id = {quizId}");
+            throw new InvalidOperationException($"Cannot find quiz with id = {questionDto.QuizId}");
         }
 
-        var questionModel = new Question
-        {
-            QuizId = quizModel.Id,
-            Quiz = quizModel,
-            Title = question,
-        };
+        Question questionModel;
 
-        foreach (var (text, isCorrect) in answers)
+        if (questionDto.Id > 0)
         {
-            var answer = new Answer
+            // Update existing question
+            questionModel = db.Questions.Include(q => q.Answers).SingleOrDefault(q => q.Id == questionDto.Id);
+            if (questionModel is null)
             {
-                Text = text,
-                IsCorrect = isCorrect,
-                Question = questionModel // Automatically sets the QuestionId due to EF Core navigation properties
+                throw new InvalidOperationException($"Cannot find question with id = {questionDto.Id}");
+            }
+
+            questionModel.Title = questionDto.Title;
+
+            // Update or remove existing answers
+            var existingAnswers = questionModel.Answers.ToList();
+            foreach (var existingAnswer in existingAnswers)
+            {
+                var answerDto = questionDto.Answers.SingleOrDefault(a => a.Id == existingAnswer.Id);
+                if (answerDto != null)
+                {
+                    existingAnswer.Text = answerDto.Text;
+                    existingAnswer.IsCorrect = answerDto.IsCorrect;
+                }
+                else
+                {
+                    db.Answers.Remove(existingAnswer);
+                }
+            }
+
+            // Add new answers
+            var newAnswers = questionDto.Answers.Where(a => a.Id == 0).ToList();
+            foreach (var newAnswerDto in newAnswers)
+            {
+                var newAnswer = new Answer
+                {
+                    Text = newAnswerDto.Text,
+                    IsCorrect = newAnswerDto.IsCorrect,
+                    Question = questionModel
+                };
+                questionModel.Answers.Add(newAnswer);
+            }
+        }
+        else
+        {
+            // Create new question
+            questionModel = new Question
+            {
+                QuizId = quizModel.Id,
+                Quiz = quizModel,
+                Title = questionDto.Title,
+                Answers = questionDto.Answers.Select(a => new Answer
+                {
+                    Text = a.Text,
+                    IsCorrect = a.IsCorrect
+                }).ToList()
             };
-            questionModel.Answers.Add(answer);
+
+            db.Questions.Add(questionModel);
         }
 
-        db.Questions.Add(questionModel);
         await db.SaveChangesAsync();
 
         return questionModel.Id;

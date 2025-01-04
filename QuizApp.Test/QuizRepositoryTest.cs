@@ -1,4 +1,7 @@
+using System.Net.Mime;
+using System.Runtime.InteropServices.Marshalling;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using QuizApp.Common.DTO;
 using QuizApp.Database;
 using QuizApp.Database.Models;
@@ -139,8 +142,19 @@ public sealed class QuizRepositoryTest : BaseRepoTest
             ("Madrid", false)
         };
 
+        var questionDto = new QuestionDTO
+        {
+            QuizId = 1,
+            Title = questionTitle,
+            Answers = answers.Select(a => new AnswerDTO
+            {
+                Text = a.Text,
+                IsCorrect = a.IsCorrect
+            }),
+        };
+
         // Act
-        var result = await quizRepository.CreateQuestion(quizId, questionTitle, answers);
+        var result = await quizRepository.SaveOrUpdateQuestion(questionDto);
 
         // Assert
         result.Should().NotBe(0);
@@ -148,6 +162,90 @@ public sealed class QuizRepositoryTest : BaseRepoTest
         var model = context.Questions.SingleOrDefault(s => s.Id == 4);
         model?.Title.Should().Be(questionTitle);
         context.Answers.Count().Should().Be(4);
+    }
+
+    [Fact]
+    public async Task UpdateQuestionWithAnswer()
+    {
+        var quizId = 1;
+        var questionTitle = "What is the capital of France?";
+        using (var setupContext = new QuizContext(Options))
+        {
+            // Ensure the database is clean
+            await setupContext.Database.EnsureDeletedAsync();
+            await setupContext.Database.EnsureCreatedAsync();
+
+            // Seed the required quiz
+            var quiz = new Quiz
+            {
+                Id = quizId,
+                QuizName = "General Knowledge",
+                Description = "GK",
+            };
+            setupContext.Quizzes.Add(quiz);
+
+            var question = new Question
+            {
+                QuizId = quizId,
+                Title = questionTitle,
+                Quiz = quiz,
+            };
+            setupContext.Questions.Add(question);
+
+            var answer = new List<Answer>
+            {
+                new Answer
+                {
+                    IsCorrect = true,
+                    Question = question,
+                    Text = "Paris"
+                },
+                new Answer
+                {
+                    IsCorrect = false,
+                    Question = question,
+                    Text = "Hanoi"
+                },
+                new Answer
+                {
+                    IsCorrect = false,
+                    Question = question,
+                    Text = "Washington"
+                },
+                new Answer
+                {
+                    IsCorrect = false,
+                    Question = question,
+                    Text = "Tokyo"
+                }
+            };
+
+            setupContext.Answers.AddRange(answer);
+            await setupContext.SaveChangesAsync();
+        }
+
+        var newQuestionTitle = "What is the capital of Vietnam?";
+        var questionDto = new QuestionDTO
+        {
+            QuizId = 1,
+            Id = 1,
+            Title = newQuestionTitle,
+            Answers = new List<AnswerDTO>
+            {
+                new AnswerDTO {Id = 1, Text = "Paris", IsCorrect = false },
+                new AnswerDTO {Id = 2, Text = "Hanoi", IsCorrect = true },
+                new AnswerDTO {Id = 3, Text = "Perth", IsCorrect = false },
+                new AnswerDTO {Id = 4, Text = "Darwin", IsCorrect = false },
+            }
+        };
+
+        var result = await quizRepository.SaveOrUpdateQuestion(questionDto);
+
+        result.Should().Be(1);
+        using var context = new QuizContext(Options);
+        var updateQuestion = context.Questions.Include(s => s.Answers).First();
+        updateQuestion.Title.Should().Be(newQuestionTitle);
+        updateQuestion.Answers.First(s => s.IsCorrect).Text.Should().Be("Hanoi");
     }
 
     [Fact]
