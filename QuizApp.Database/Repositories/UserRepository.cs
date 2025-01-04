@@ -26,7 +26,7 @@ public class UserRepository : IUserRepository
         return user.Entity.Id;
     }
 
-    public async Task<int> CreateUser(CreateUserDTO createUserDTO)
+    public async Task<int> CreateUser(UserDTO createUserDTO)
     {
         var user = await db.AddAsync(new User
         {
