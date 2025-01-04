@@ -8,6 +8,8 @@
 
 <ItemGroup>
 	<PackageReference Include="Auth0.AspNetCore.Authentication" Version="1.4.1" />
+	<PackageReference Include="Autofac" Version="8.2.0" />
+	<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
 	<PackageReference Include="FastEndpoints" Version="5.33.0" />
 	<PackageReference Include="FastEndpoints.Attributes" Version="5.33.0" />
 	<PackageReference Include="FastEndpoints.ClientGen" Version="5.33.0" />
@@ -25,6 +27,12 @@
     <ProjectReference Include="..\QuizApp.Database\QuizApp.Database.csproj" />
     <ProjectReference Include="..\QuizApp.Client\QuizApp.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Endpoints\Answer\" />
+    <Folder Include="Endpoints\User\" />
+    <Folder Include="Endpoints\Submission\" />
+    <Folder Include="Endpoints\Question\" />
   </ItemGroup>
 
 </Project>

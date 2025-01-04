@@ -1,4 +1,6 @@
 using Auth0.AspNetCore.Authentication;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using FastEndpoints;
 using FastEndpoints.ClientGen;
 using FastEndpoints.Swagger;
@@ -14,6 +16,12 @@ using QuizApp.Components;
 using QuizApp.Database;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
+        .ConfigureContainer<ContainerBuilder>(builder =>
+        {
+            builder.RegisterModule(new RepositoryModule());
+        });
 
 #region Auth0 Setup
 builder.Services.AddCascadingAuthenticationState();
@@ -120,13 +128,13 @@ app.UseFastEndpoints(c =>
 
 await app.GenerateClientsAndExitAsync(
     documentName: "QuizAppApi",
-    destinationPath: "../QuizApp.Client/HttpClient",
+    destinationPath: "../QuizApp.Api/",
     csSettings: c =>
     {
-        c.ClassName = "ApiClient";
+        c.ClassName = "QuizApiClient";
         c.InjectHttpClient = true;
         c.GenerateClientInterfaces = true;
-        c.CSharpGeneratorSettings.Namespace = "QuizApp.Client.HttpClient";
+        c.CSharpGeneratorSettings.Namespace = "QuizApp.Api";
         c.CSharpGeneratorSettings.JsonLibrary = CSharpJsonLibrary.NewtonsoftJson;
     },
     tsSettings: null);
