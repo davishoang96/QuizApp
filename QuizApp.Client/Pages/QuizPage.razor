@@ -1,11 +1,13 @@
 ﻿@page "/quizzes"
 @using QuizApp.Api
 @using QuizApp.Common.DTO
+@using System.Collections.ObjectModel
 @inject IQuizApiClient apiClient
+@inject DialogService DialogService
 
 <h3>Quiz Manager</h3>
 
-<RadzenButton>Add Quiz</RadzenButton>
+<RadzenButton Click="AddNewQuiz">Add Quiz</RadzenButton>
 
 @if (Quizzes == null)
 {
@@ -30,31 +32,27 @@ else
     </RadzenDataGrid>
 }
 
-@* <SaveQuizModal @ref="SaveQuizModal" OnSave="ReloadQuizzes" /> *@
 
 @code {
-    private List<QuizDTO> Quizzes { get; set; } = new List<QuizDTO>();
-    //private SaveQuizModal SaveQuizModal { get; set; } = default!;
+    private ObservableCollection<QuizDTO> Quizzes { get; set; } = new ObservableCollection<QuizDTO>();
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadQuizzes();
-    }
-
-    private async Task LoadQuizzes()
-    {
         var a = await apiClient.GetQuizzesEndpointAsync();
-        Quizzes = a.ToList();
+        Quizzes = new ObservableCollection<QuizDTO>(a);
     }
 
-    private async Task ReloadQuizzes()
+    private async Task AddNewQuiz()
     {
-        await LoadQuizzes();
+        DialogService.OnClose += AddNewQuizClosed;
+        await DialogService.OpenAsync<AddQuiz>("Add New Quiz");
     }
 
-    private void AddNewQuiz()
+    private void AddNewQuizClosed(dynamic obj)
     {
-        //SaveQuizModal.Show(new QuizDTO());
+        var newQuiz = obj as QuizDTO;
+        Quizzes.Add(newQuiz);
+        StateHasChanged();
     }
 
     private void EditQuiz(int quizId)
