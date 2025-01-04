@@ -1,0 +1,91 @@
+﻿@page "/quizzes"
+@using QuizApp.Api
+@using QuizApp.Common.DTO
+@inject IQuizApiClient apiClient
+
+<h3>Quiz Manager</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="AddNewQuiz">Add New Quiz</button>
+</div>
+
+@if (Quizzes == null)
+{
+    <p>Loading...</p>
+}
+else if (!Quizzes.Any())
+{
+    <p>No quizzes available.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var quiz in Quizzes)
+            {
+                <tr>
+                    <td>@quiz.Name</td>
+                    <td>@quiz.Description</td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm">Edit</button>
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@* <SaveQuizModal @ref="SaveQuizModal" OnSave="ReloadQuizzes" /> *@
+
+@code {
+    private List<QuizDTO> Quizzes { get; set; } = new List<QuizDTO>();
+    //private SaveQuizModal SaveQuizModal { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadQuizzes();
+    }
+
+    private async Task LoadQuizzes()
+    {
+        var a = await apiClient.GetQuizzesEndpointAsync();
+        Quizzes = a.ToList();
+    }
+
+    private async Task ReloadQuizzes()
+    {
+        await LoadQuizzes();
+    }
+
+    private void AddNewQuiz()
+    {
+        //SaveQuizModal.Show(new QuizDTO());
+    }
+
+    private void EditQuiz(int quizId)
+    {
+        var quizToEdit = Quizzes.FirstOrDefault(q => q.Id == quizId);
+        if (quizToEdit != null)
+        {
+            //SaveQuizModal.Show(quizToEdit);
+        }
+    }
+
+    private async Task DeleteQuiz(int quizId)
+    {
+        //var confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete Quiz #{quizId}?");
+        // if (confirm)
+        // {
+        //     //await QuizService.DeleteQuizAsync(quizId);
+        //     await ReloadQuizzes();
+        // }
+    }
+}
