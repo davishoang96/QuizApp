@@ -1,17 +1,25 @@
 ﻿@page "/"
 <PageTitle>Home</PageTitle>
-
+@inject DialogService DialogService
 <h1>@Text</h1>
 
 Welcome to your new app.
 
 <RadzenButton Click="@ButtonClicked" Text="@Text"></RadzenButton>
-
+<RadzenButton Text="Confirm dialog" ButtonStyle="ButtonStyle.Secondary"
+              Click=@(args => DialogService.Confirm("Are you sure?", "MyTitle", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" })) />
 @code {
 
     private string Text = "Hi";
     void ButtonClicked()
     {
-        Text = "Hello";
+        // Text = "Hello";
     }
+
+    private void AddNewQuiz()
+    {
+        //SaveQuizModal.Show(new QuizDTO());
+         DialogService.Alert("123");
+    }
+
 }
