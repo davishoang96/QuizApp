@@ -31,7 +31,6 @@
   <ItemGroup>
     <Folder Include="Endpoints\Answer\" />
     <Folder Include="Endpoints\User\" />
-    <Folder Include="Endpoints\Submission\" />
   </ItemGroup>
 
 </Project>
