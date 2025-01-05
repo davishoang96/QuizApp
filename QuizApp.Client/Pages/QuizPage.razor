@@ -5,6 +5,7 @@
 @inject IQuizApiClient apiClient
 @inject DialogService DialogService
 @inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
 
 <h3>Quiz Manager</h3>
 
@@ -20,7 +21,7 @@ else if (!Quizzes.Any())
 }
 else
 {
-    <RadzenDataGrid ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@Quizzes" TItem="QuizDTO">
+    <RadzenDataGrid RowClick="OnRowClick" ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@Quizzes" TItem="QuizDTO">
         <Columns>
             <RadzenDataGridColumn Property="@(nameof(QuizDTO.Name))" Title="Name" Width="140px" />
             <RadzenDataGridColumn Property="@(nameof(QuizDTO.Description))" Title="Description" Filterable="false" />
@@ -41,6 +42,14 @@ else
     {
         var a = await apiClient.GetQuizzesEndpointAsync();
         Quizzes = new ObservableCollection<QuizDTO>(a);
+    }
+
+    private void OnRowClick(DataGridRowMouseEventArgs<QuizDTO> selectedItem)
+    {
+        if (selectedItem.Data?.Id.HasValue == true)
+        {
+            NavigationManager.NavigateTo($"/add-question/{selectedItem.Data.Id.Value}");
+        }
     }
 
     private async Task AddNewQuiz()

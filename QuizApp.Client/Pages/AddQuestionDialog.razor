@@ -1,0 +1,49 @@
+﻿@using QuizApp.Common.DTO
+@using System.Collections.ObjectModel
+@inject DialogService dialogService
+
+<RadzenStack>
+    <RadzenTextArea Rows="1" @bind-Value="@TheQuestion.Title" Placeholder="Title"></RadzenTextArea>
+    <RadzenDataGrid AllowFiltering="false" AllowPaging="false" AllowSorting="false" Data="@Answers" TItem="AnswerDTO">
+        <Columns>
+            <RadzenDataGridColumn Width="70%" Property="Text" Title="Answer(s)">
+                <Template Context="data">
+                    <RadzenTextBox Style="width: 100%" @bind-Value="data.Text" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TextAlign="TextAlign.Center" Width="15%" Property="IsCorrect" Title="Correct">
+                <Template Context="data">
+                    <RadzenCheckBox @bind-Value="data.IsCorrect" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Width="15%" TextAlign="TextAlign.Center">
+                <Template Context="data">
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="(() => RemoveAnswer(data))" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+    <RadzenButton Click="AddAnswer">Add Answer</RadzenButton>
+    <RadzenButton Click="Save">Save</RadzenButton>
+</RadzenStack>
+
+@code {
+    private QuestionDTO TheQuestion = new QuestionDTO();
+    private ObservableCollection<AnswerDTO> Answers { get; set; } = new ObservableCollection<AnswerDTO>();
+
+    private async Task AddAnswer()
+    {
+        Answers.Add(new AnswerDTO { Text = string.Empty, IsCorrect = false });
+    }
+
+    private void RemoveAnswer(AnswerDTO answer)
+    {
+        Answers.Remove(answer);
+    }
+
+    private void Save()
+    {
+        TheQuestion.Answers = Answers;
+        dialogService.Close(TheQuestion);
+    }
+}
