@@ -19,6 +19,15 @@ public class QuizContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Quiz>(entity =>
+        {
+            entity.HasKey(q => q.Id);
+            entity.HasMany(q => q.Questions)
+                  .WithOne(q => q.Quiz)
+                  .HasForeignKey(q => q.QuizId) // Explicit foreign key configuration (optional)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
         modelBuilder.Entity<Submission>()
             .HasKey(uq => uq.Id);
 

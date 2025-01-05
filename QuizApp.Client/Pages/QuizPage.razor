@@ -4,10 +4,11 @@
 @using System.Collections.ObjectModel
 @inject IQuizApiClient apiClient
 @inject DialogService DialogService
+@inject NotificationService NotificationService
 
 <h3>Quiz Manager</h3>
 
-<RadzenButton Click="AddNewQuiz">Add Quiz</RadzenButton>
+<RadzenButton ButtonStyle="ButtonStyle.Secondary" Style="margin-bottom: 10px" Click="AddNewQuiz">Add Quiz</RadzenButton>
 
 @if (Quizzes == null)
 {
@@ -22,10 +23,10 @@ else
     <RadzenDataGrid ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@Quizzes" TItem="QuizDTO">
         <Columns>
             <RadzenDataGridColumn Property="@(nameof(QuizDTO.Name))" Title="Name" Width="140px" />
-            <RadzenDataGridColumn Property="@(nameof(QuizDTO.Description))" Title="Description" />
-            <RadzenDataGridColumn Width="100px" Title="Actions">
+            <RadzenDataGridColumn Property="@(nameof(QuizDTO.Description))" Title="Description" Filterable="false" />
+            <RadzenDataGridColumn Filterable="false" TextAlign="TextAlign.Center">
                 <Template Context="data">
-                    <RadzenButton Icon="delete" Class="rz-button rz-danger" Style="margin-left: 5px" />
+                    <RadzenButton Click="@(() => DeleteQuiz(data.Id.Value))" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 5px" />
                 </Template>
             </RadzenDataGridColumn>
         </Columns>
@@ -51,8 +52,11 @@ else
     private void AddNewQuizClosed(dynamic obj)
     {
         var newQuiz = obj as QuizDTO;
-        Quizzes.Add(newQuiz);
-        StateHasChanged();
+        if(newQuiz is not null)
+        {
+            Quizzes.Add(newQuiz);
+            StateHasChanged();
+        }
     }
 
     private void EditQuiz(int quizId)
@@ -66,11 +70,16 @@ else
 
     private async Task DeleteQuiz(int quizId)
     {
-        //var confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete Quiz #{quizId}?");
-        // if (confirm)
-        // {
-        //     //await QuizService.DeleteQuizAsync(quizId);
-        //     await ReloadQuizzes();
-        // }
+        var result = await apiClient.DeleteQuizEndpointAsync(new Common.Request.DeleteQuizRequest{
+            QuizId = quizId
+        });
+
+        if(result)
+        {
+            var quizToRemove = Quizzes.First(s => s.Id == quizId);
+            Quizzes.Remove(quizToRemove);
+            StateHasChanged();
+            NotificationService.Notify(NotificationSeverity.Success, "Delete quiz successfuly");
+        }
     }
 }

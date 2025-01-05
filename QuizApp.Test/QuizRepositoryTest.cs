@@ -20,6 +20,53 @@ public sealed class QuizRepositoryTest : BaseRepoTest
     }
 
     [Fact]
+    public async Task DeleteQuizOK()
+    {
+        using (var setupContext = new QuizContext(Options))
+        {
+            // Ensure the database is clean
+            await setupContext.Database.EnsureDeletedAsync();
+            await setupContext.Database.EnsureCreatedAsync();
+
+            // Seed the required quiz
+            setupContext.Quizzes.Add(new Quiz
+            {
+                Id = 1,
+                QuizName = "General Knowledge",
+                Description = "GK",
+            });
+
+            setupContext.Questions.Add(new Question
+            {
+                QuizId = 1,
+                Title = "What is the capital of France?",
+                Answers = new List<Answer>
+                {
+                    new Answer { Text = "Paris", IsCorrect = true },
+                    new Answer { Text = "London", IsCorrect = false }
+                }
+            });
+
+            await setupContext.SaveChangesAsync();
+        }
+
+        // Assume
+        using var context = new QuizContext(Options);
+        context.Quizzes.Should().NotBeEmpty();
+        context.Questions.Should().NotBeEmpty();
+        context.Answers.Should().NotBeEmpty();
+
+        // Act
+        var result = await quizRepository.DeleteQuiz(1);
+
+        //
+        result.Should().BeTrue();
+        context.Quizzes.Should().BeEmpty();
+        context.Questions.Should().BeEmpty();
+        context.Answers.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task GetAllQuizzesOK()
     {
         // Arrange
