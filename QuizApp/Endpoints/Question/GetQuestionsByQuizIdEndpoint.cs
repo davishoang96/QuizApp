@@ -16,7 +16,6 @@ public class GetQuestionsByQuizIdEndpoint : Endpoint<GetQuestionByQuizIdRequest,
     public override void Configure()
     {
         Get("question/getquestionbyquizid");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(GetQuestionByQuizIdRequest r, CancellationToken ct)

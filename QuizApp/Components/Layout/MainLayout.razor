@@ -1,10 +1,19 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
 <RadzenComponents @rendermode="InteractiveServer" />
 <RadzenLayout> 
     <RadzenHeader>
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
             <RadzenSidebarToggle Click="@(() => Toggle())" />
             <RadzenLabel Text="Quiz App" />
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <RadzenLink Text="Logout" Path="/account/logout" />
+                </Authorized>
+                <NotAuthorized>
+                    <RadzenLink Text="Login" Path="/account/Login" />
+                </NotAuthorized>
+            </AuthorizeView>
         </RadzenStack>
     </RadzenHeader>
     <NavMenu IsSideBarExpanded="sidebar1Expanded" />

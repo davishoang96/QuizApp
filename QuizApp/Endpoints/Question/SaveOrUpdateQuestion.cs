@@ -15,7 +15,6 @@ namespace QuizApp.Endpoints.Question
         public override void Configure()
         {
             Post("question/savequestions");
-            AllowAnonymous();
         }
 
         public override async Task HandleAsync(SaveOrUpdateQuestionRequest r, CancellationToken ct)

@@ -1,10 +1,15 @@
-﻿@rendermode InteractiveServer
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveServer
 
 <RadzenSidebar Expanded="IsSideBarExpanded">
     <RadzenPanelMenu>
         <RadzenPanelMenuItem Text="Home" Icon="home" Path="/" />
-        <RadzenPanelMenuItem Text="Quizzes" Path="/quizzes" Icon="assignment" />
-        <RadzenPanelMenuItem Text="Dashboard" Path="/dashboard" Icon="dashboard" />
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <RadzenPanelMenuItem Text="Quizzes Manager" Path="/quiz-manager" Icon="assignment" />
+                <RadzenPanelMenuItem Text="Dashboard" Path="/dashboard" Icon="dashboard" />
+            </Authorized>
+         </AuthorizeView>
     </RadzenPanelMenu>
 </RadzenSidebar>
 
