@@ -194,4 +194,17 @@ public class QuizRepository : IQuizRepository
             Name = q.QuizName,
         }).ToListAsync();
     }
+
+    public async Task<bool> DeleteQuiz(int quizId)
+    {
+        var quiz = await db.Quizzes.FindAsync(quizId);
+        if (quiz == null)
+        {
+            return false;
+        }
+
+        db.Quizzes.Remove(quiz);
+        await db.SaveChangesAsync();
+        return true;
+    }
 }
