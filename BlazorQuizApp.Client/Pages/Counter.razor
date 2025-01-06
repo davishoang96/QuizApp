@@ -1,19 +1,29 @@
 ﻿@page "/counter"
+@using QuizApp.Api
+@inject DialogService DialogService;
+@inject IQuizApiClient QuizApiClient;
 @attribute [Authorize]
 
-<PageTitle>Counter</PageTitle>
+<PageTitle>Secure Api</PageTitle>
 
-<h1>Counter</h1>
+<RadzenText Text="@Text" />
 
-<p role="status">Current count: @currentCount</p>
-
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<RadzenButton Text="Click me!" Click="@ClickMe" />
+<RadzenButton Text="Call Api" Click="@CallApi" />
 
 @code {
-    private int currentCount = 0;
 
-    private void IncrementCount()
-    {
-        currentCount++;
-    }
+	private string Text = "Hello, world!";
+
+	private async Task ClickMe()
+	{
+		Text = "Hello, Radzen!";
+		await DialogService.Alert("Hello, Radzen!");
+	}
+
+	private async Task CallApi()
+	{
+		var response = await QuizApiClient.GetScoreEndpointAsync();
+		Text = $"This data comes from an internal API: {string.Join(",", response)}";
+	}
 }

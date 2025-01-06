@@ -8,6 +8,11 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using QuizApp.Database;
 using Radzen;
+using FastEndpoints;
+using FastEndpoints.Swagger;
+using FastEndpoints.ClientGen;
+using NJsonSchema.CodeGeneration.CSharp;
+using QuizApp.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
@@ -33,6 +38,28 @@ builder.Services.AddAuth0WebAppAuthentication(options =>
 {
     options.Domain = builder.Configuration["Auth0:Domain"];
     options.ClientId = builder.Configuration["Auth0:ClientId"];
+});
+
+builder.Services.AddFastEndpoints().SwaggerDocument(o =>
+{
+    o.ShortSchemaNames = true; // prevent adding namespace as prefix to classes.
+    o.DocumentSettings = s => s.DocumentName = "QuizAppApi"; //must match doc name below
+});
+
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<TokenHandler>();
+
+var baseUrl = builder.Configuration["BaseUrl"];
+builder.Services.AddHttpClient("QuizAppApi",
+      client => client.BaseAddress = new Uri(baseUrl))
+      .AddHttpMessageHandler<TokenHandler>();
+
+builder.Services.AddScoped<IQuizApiClient>(sp =>
+{
+    var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient("QuizAppApi");
+    return new QuizApiClient(baseUrl, httpClient);
 });
 
 var app = builder.Build();
@@ -84,5 +111,27 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(BlazorQuizApp.Client._Imports).Assembly);
+
+// Use FastEndpoints
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.ShortNames = true;
+    c.Serializer.Options.PropertyNamingPolicy = null;
+}).UseSwaggerGen();
+
+await app.GenerateClientsAndExitAsync(
+    documentName: "QuizAppApi",
+    destinationPath: "../QuizApp.Api/",
+    csSettings: c =>
+    {
+        c.ClassName = "QuizApiClient";
+        c.InjectHttpClient = true;
+        c.GenerateClientInterfaces = true;
+        c.GenerateDtoTypes = false;
+        c.AdditionalNamespaceUsages = ["QuizApp.Common.DTO", "QuizApp.Common.Request"];
+        c.CSharpGeneratorSettings.Namespace = "QuizApp.Api";
+        c.CSharpGeneratorSettings.JsonLibrary = CSharpJsonLibrary.NewtonsoftJson;
+    },
+    tsSettings: null);
 
 app.Run();
