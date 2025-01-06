@@ -18,5 +18,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\QuizApp.Api\QuizApp.Api.csproj" />
+		<ProjectReference Include="..\QuizApp.Common\QuizApp.Common.csproj" />
 	</ItemGroup>
 </Project>

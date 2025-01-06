@@ -1,21 +1,17 @@
 ﻿using FastEndpoints;
+using Microsoft.AspNetCore.Authorization;
 using QuizApp.Common.Request;
 using QuizApp.Database.Repositories;
 
 namespace BlazorQuizApp.Endpoints.Submission;
 
+[HttpPost("submission/save"), Authorize]
 public class SaveSubmissionEndpoint : Endpoint<SaveSubmissionRequest, int>
 {
     private readonly IQuizRepository quizRepository;
     public SaveSubmissionEndpoint(IQuizRepository quizRepository)
     {
         this.quizRepository = quizRepository;
-    }
-
-    public override void Configure()
-    {
-        Post("submission/save");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(SaveSubmissionRequest r, CancellationToken ct)

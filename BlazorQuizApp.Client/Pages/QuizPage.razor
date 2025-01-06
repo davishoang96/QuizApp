@@ -1,0 +1,95 @@
+﻿@page "/quizzes"
+@using QuizApp.Api
+@using QuizApp.Common.DTO
+@using System.Collections.ObjectModel
+@using QuizApp.Common.Request
+@inject IQuizApiClient apiClient
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+
+<h3>Quiz Manager</h3>
+
+<RadzenButton ButtonStyle="ButtonStyle.Secondary" Style="margin-bottom: 10px" Click="AddNewQuiz">Add Quiz</RadzenButton>
+
+@if (Quizzes == null)
+{
+    <p>Loading...</p>
+}
+else if (!Quizzes.Any())
+{
+    <p>No quizzes available.</p>
+}
+else
+{
+    <RadzenDataGrid RowClick="OnRowClick" ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@Quizzes" TItem="QuizDTO">
+        <Columns>
+            <RadzenDataGridColumn Property="@(nameof(QuizDTO.Name))" Title="Name" Width="140px" />
+            <RadzenDataGridColumn Property="@(nameof(QuizDTO.Description))" Title="Description" Filterable="false" />
+            <RadzenDataGridColumn Filterable="false" TextAlign="TextAlign.Center">
+                <Template Context="data">
+                    <RadzenButton Click="@(() => DeleteQuiz(data.Id.Value))" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 5px" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+
+@code {
+    private ObservableCollection<QuizDTO> Quizzes { get; set; } = new ObservableCollection<QuizDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var a = await apiClient.GetQuizzesEndpointAsync();
+        Quizzes = new ObservableCollection<QuizDTO>(a);
+    }
+
+    private void OnRowClick(DataGridRowMouseEventArgs<QuizDTO> selectedItem)
+    {
+        if (selectedItem.Data?.Id.HasValue == true)
+        {
+            NavigationManager.NavigateTo($"/add-question/{selectedItem.Data.Id.Value}");
+        }
+    }
+
+    private async Task AddNewQuiz()
+    {
+        DialogService.OnClose += AddNewQuizClosed;
+        await DialogService.OpenAsync<AddQuiz>("Add New Quiz");
+    }
+
+    private void AddNewQuizClosed(dynamic obj)
+    {
+        var newQuiz = obj as QuizDTO;
+        if(newQuiz is not null)
+        {
+            Quizzes.Add(newQuiz);
+            StateHasChanged();
+        }
+    }
+
+    private void EditQuiz(int quizId)
+    {
+        var quizToEdit = Quizzes.FirstOrDefault(q => q.Id == quizId);
+        if (quizToEdit != null)
+        {
+            //SaveQuizModal.Show(quizToEdit);
+        }
+    }
+
+    private async Task DeleteQuiz(int quizId)
+    {
+        var result = await apiClient.DeleteQuizEndpointAsync(new DeleteQuizRequest{
+            QuizId = quizId
+        });
+
+        if(result)
+        {
+            var quizToRemove = Quizzes.First(s => s.Id == quizId);
+            Quizzes.Remove(quizToRemove);
+            StateHasChanged();
+            NotificationService.Notify(NotificationSeverity.Success, "Delete quiz successfuly");
+        }
+    }
+}
