@@ -35,7 +35,6 @@ logs/
 *.vspscc
 
 # ASP.NET configuration and secrets
-appsettings*.json
 secrets.json
 
 # Visual Studio and Rider IDE specific
