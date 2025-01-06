@@ -403,7 +403,7 @@ public sealed class QuizRepositoryTest : BaseRepoTest
 
             setupContext.Users.Add(new User
             {
-                Id = 1,
+                UserId = "i43vq4yhgv",
                 Email = "johnDoe@gmail.com",
                 JoinDate = DateTime.Now,
                 Role = "Student",
