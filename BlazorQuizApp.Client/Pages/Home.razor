@@ -1,0 +1,20 @@
+﻿@page "/"
+@inject DialogService DialogService;
+<PageTitle>Home</PageTitle>
+
+<h1>@Text</h1>
+
+Welcome to your new app.
+
+<RadzenButton Text="Click me!" Click="@ClickMe" />
+
+@code{
+
+	private string Text = "Hello, world!";
+
+	private async Task ClickMe()
+	{
+		Text = "Hello, Radzen!";
+		await DialogService.Alert("Hello, Radzen!");
+	}
+}

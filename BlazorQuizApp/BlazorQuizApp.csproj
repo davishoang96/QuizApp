@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BlazorQuizApp.Client\BlazorQuizApp.Client.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.0" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Auth0.AspNetCore.Authentication" Version="1.4.1" />
+		<PackageReference Include="Autofac" Version="8.2.0" />
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
+		<PackageReference Include="FastEndpoints" Version="5.33.0" />
+		<PackageReference Include="FastEndpoints.Attributes" Version="5.33.0" />
+		<PackageReference Include="FastEndpoints.ClientGen" Version="5.33.0" />
+		<PackageReference Include="FastEndpoints.Security" Version="5.33.0" />
+		<PackageReference Include="FastEndpoints.Swagger" Version="5.33.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Radzen.Blazor" Version="5.7.2" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\QuizApp.Api\QuizApp.Api.csproj" />
+		<ProjectReference Include="..\QuizApp.Database\QuizApp.Database.csproj" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Endpoints\Answer\" />
+	</ItemGroup>
+
+</Project>
