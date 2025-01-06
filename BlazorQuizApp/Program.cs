@@ -1,9 +1,9 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using BlazorQuizApp.Client.Pages;
 using BlazorQuizApp.Components;
 using Microsoft.EntityFrameworkCore;
 using QuizApp.Database;
+using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
@@ -20,6 +20,8 @@ builder.Services.AddDbContext<QuizContext>(options =>
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddRadzenComponents();
 
 var app = builder.Build();
 
