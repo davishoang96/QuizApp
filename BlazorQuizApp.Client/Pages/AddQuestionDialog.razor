@@ -1,6 +1,7 @@
 ﻿@using QuizApp.Common.DTO
 @using System.Collections.ObjectModel
 @inject DialogService dialogService
+@attribute [Authorize]
 
 <RadzenStack>
     <RadzenTextArea Rows="1" @bind-Value="@TheQuestion.Title" Placeholder="Title"></RadzenTextArea>
