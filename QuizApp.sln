@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizApp.Common", "QuizApp.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizApp.Api", "QuizApp.Api\QuizApp.Api.csproj", "{17AAAA0D-4C2E-4CE0-8931-2C0D7DB7B2B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorQuizApp", "BlazorQuizApp\BlazorQuizApp.csproj", "{748A1017-7338-49D9-A15E-B22B6FD41882}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorQuizApp.Client", "BlazorQuizApp.Client\BlazorQuizApp.Client.csproj", "{D1683FED-7C69-4DDC-A12F-92522F016514}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,14 @@ Global
 		{17AAAA0D-4C2E-4CE0-8931-2C0D7DB7B2B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17AAAA0D-4C2E-4CE0-8931-2C0D7DB7B2B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17AAAA0D-4C2E-4CE0-8931-2C0D7DB7B2B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{748A1017-7338-49D9-A15E-B22B6FD41882}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{748A1017-7338-49D9-A15E-B22B6FD41882}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{748A1017-7338-49D9-A15E-B22B6FD41882}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{748A1017-7338-49D9-A15E-B22B6FD41882}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1683FED-7C69-4DDC-A12F-92522F016514}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1683FED-7C69-4DDC-A12F-92522F016514}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1683FED-7C69-4DDC-A12F-92522F016514}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1683FED-7C69-4DDC-A12F-92522F016514}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
