@@ -6,6 +6,7 @@
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
             <RadzenSidebarToggle Click="@(() => Toggle())" />
             <RadzenLabel Text="Quiz App" />
+            <RadzenLabel Text="@Username" />
         </RadzenStack>
     </RadzenHeader>
     <NavMenu IsSideBarExpanded="sidebar1Expanded" />
@@ -26,8 +27,21 @@
 
 @code {
 
-    bool sidebar1Expanded = true;
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
 
+    bool sidebar1Expanded = true;
+    private string Username = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (authenticationState is not null)
+        {
+            var state = await authenticationState;
+            Username = state?.User?.Identity?.Name ?? string.Empty;
+        }
+        await base.OnInitializedAsync();
+    }
 
     private void Toggle()
     {

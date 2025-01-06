@@ -7,6 +7,8 @@
 @inject DialogService DialogService
 @inject NotificationService NotificationService
 @inject NavigationManager NavigationManager
+@attribute [StreamRendering]
+@attribute [Authorize]
 
 <h3>Quiz Manager</h3>
 
@@ -35,15 +37,18 @@ else
     </RadzenDataGrid>
 }
 
-
 @code {
     private ObservableCollection<QuizDTO> Quizzes { get; set; } = new ObservableCollection<QuizDTO>();
 
-    protected override async Task OnInitializedAsync()
-    {
-        var a = await apiClient.GetQuizzesEndpointAsync();
-        Quizzes = new ObservableCollection<QuizDTO>(a);
-    }
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			var quizDTOs = await apiClient.GetQuizzesEndpointAsync();
+            Quizzes = new ObservableCollection<QuizDTO>(quizDTOs);
+			StateHasChanged();
+		}
+	}
 
     private void OnRowClick(DataGridRowMouseEventArgs<QuizDTO> selectedItem)
     {

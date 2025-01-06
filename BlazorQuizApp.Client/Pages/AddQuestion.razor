@@ -7,39 +7,53 @@
 @inject DialogService DialogService
 @inject NotificationService NotificationService
 @inject NavigationManager NavigationManager
+@attribute [StreamRendering]
+@attribute [Authorize]
 
 <h3>
     Add Questions & Answers
 </h3>
 
-<RadzenStack AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Left">
-
+@if (Questions == null)
+{
+    <p>Loading...</p>
+}
+else if (!Questions.Any())
+{
+    <RadzenText>No question available.</RadzenText>
     <RadzenButton Click="AddNewQuestion">Add question</RadzenButton>
+}
+else
+{
+    <RadzenStack AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Left">
 
-    <RadzenDataGrid ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@Questions" TItem="QuestionDTO">
-        <Columns>
-            <RadzenDataGridColumn Property="Title" Title="Question" Width="300px" />
-            <RadzenDataGridColumn Property="Answers" Title="Answers">
-                <Template Context="data">
-                    <ul>
-                        @foreach (var answer in data.Answers)
-                        {
-                            <li>
-                                @answer.Text
-                                <span class="badge bg-@(answer.IsCorrect ? "success" : "secondary")">
-                                    @(answer.IsCorrect ? "Correct" : "Incorrect")
-                                </span>
-                            </li>
-                        }
-                    </ul>
-                </Template>
-            </RadzenDataGridColumn>
-        </Columns>
-    </RadzenDataGrid>
+        <RadzenButton Click="AddNewQuestion">Add question</RadzenButton>
 
-    <RadzenButton Click="SaveQuestion">Save</RadzenButton>
+        <RadzenDataGrid ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@Questions" TItem="QuestionDTO">
+            <Columns>
+                <RadzenDataGridColumn Property="Title" Title="Question" Width="300px" />
+                <RadzenDataGridColumn Property="Answers" Title="Answers">
+                    <Template Context="data">
+                        <ul>
+                            @foreach (var answer in data.Answers)
+                            {
+                                <li>
+                                    @answer.Text
+                                    <span class="badge bg-@(answer.IsCorrect ? "success" : "secondary")">
+                                        @(answer.IsCorrect ? "Correct" : "Incorrect")
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
 
-</RadzenStack>
+        <RadzenButton Click="SaveQuestion">Save</RadzenButton>
+
+    </RadzenStack>
+}
 
 @code {
     [Parameter] public int QuizId { get; set; }
@@ -76,18 +90,27 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        if (firstRender)
         {
-            var questionDTOs = await apiClient.GetQuestionsByQuizIdEndpointAsync(new GetQuestionByQuizIdRequest{
-				QuizId = QuizId
-            });
-            Questions = new ObservableCollection<QuestionDTO>(questionDTOs);
-        }
-        catch(Exception ex)
-        {
+            var questionDTOs = await apiClient.GetQuestionsByQuizIdEndpointAsync(QuizId);
 
-        }
-    }
+            if(questionDTOs == null)
+            {
+                return;
+            }
+
+            if (questionDTOs.Any())
+            {
+                Questions = new ObservableCollection<QuestionDTO>(questionDTOs);
+            }
+            else
+            {
+                Questions = new ObservableCollection<QuestionDTO>();
+            }
+
+            StateHasChanged();
+		}
+	}
 }

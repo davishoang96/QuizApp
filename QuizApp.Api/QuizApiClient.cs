@@ -116,12 +116,12 @@ namespace QuizApp.Api
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<QuestionDTO>> GetQuestionsByQuizIdEndpointAsync(GetQuestionByQuizIdRequest getQuestionByQuizIdRequest);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<QuestionDTO>> GetQuestionsByQuizIdEndpointAsync(int quizId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<QuestionDTO>> GetQuestionsByQuizIdEndpointAsync(GetQuestionByQuizIdRequest getQuestionByQuizIdRequest, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<QuestionDTO>> GetQuestionsByQuizIdEndpointAsync(int quizId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -1031,18 +1031,18 @@ namespace QuizApp.Api
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<QuestionDTO>> GetQuestionsByQuizIdEndpointAsync(GetQuestionByQuizIdRequest getQuestionByQuizIdRequest)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<QuestionDTO>> GetQuestionsByQuizIdEndpointAsync(int quizId)
         {
-            return GetQuestionsByQuizIdEndpointAsync(getQuestionByQuizIdRequest, System.Threading.CancellationToken.None);
+            return GetQuestionsByQuizIdEndpointAsync(quizId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<QuestionDTO>> GetQuestionsByQuizIdEndpointAsync(GetQuestionByQuizIdRequest getQuestionByQuizIdRequest, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<QuestionDTO>> GetQuestionsByQuizIdEndpointAsync(int quizId, System.Threading.CancellationToken cancellationToken)
         {
-            if (getQuestionByQuizIdRequest == null)
-                throw new System.ArgumentNullException("getQuestionByQuizIdRequest");
+            if (quizId == null)
+                throw new System.ArgumentNullException("quizId");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -1050,17 +1050,16 @@ namespace QuizApp.Api
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(getQuestionByQuizIdRequest, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.StringContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "question/getquestionbyquizid"
                     urlBuilder_.Append("question/getquestionbyquizid");
+                    urlBuilder_.Append('?');
+                    urlBuilder_.Append(System.Uri.EscapeDataString("QuizId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(quizId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
