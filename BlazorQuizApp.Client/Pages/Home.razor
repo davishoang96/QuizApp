@@ -1,20 +1,48 @@
 ﻿@page "/"
+@using QuizApp.Api
+@using QuizApp.Common.DTO
+@using System.Collections.ObjectModel
 @inject DialogService DialogService;
+@inject IQuizApiClient apiClient
 <PageTitle>Home</PageTitle>
 
-<h1>@Text</h1>
-
-Welcome to your new app.
-
-<RadzenButton Text="Click me!" Click="@ClickMe" />
+<RadzenDataList Data="@Quizzes" TItem="QuizDTO" PageSize="5">
+    <Template Context="quiz">
+        <RadzenCard Variant="Variant.Flat" class="rz-p-3">
+            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Left" AlignItems="AlignItems.Start">
+                <h3>@quiz.Name</h3>
+                <RadzenText>@quiz.Description</RadzenText>
+                <RadzenButton>Take Quiz</RadzenButton>
+            </RadzenStack>
+        </RadzenCard>
+    </Template>
+</RadzenDataList>
 
 @code{
 
-	private string Text = "Hello, world!";
+    private ObservableCollection<QuizDTO> Quizzes = new ObservableCollection<QuizDTO>();
 
-	private async Task ClickMe()
-	{
-		Text = "Hello, Radzen!";
-		await DialogService.Alert("Hello, Radzen!");
-	}
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var questionDTOs = await apiClient.GetQuizzesEndpointAsync();
+
+            if (questionDTOs == null)
+            {
+                return;
+            }
+
+            if (questionDTOs.Any())
+            {
+                Quizzes = new ObservableCollection<QuizDTO>(questionDTOs);
+            }
+            else
+            {
+                Quizzes = new ObservableCollection<QuizDTO>();
+            }
+
+            StateHasChanged();
+        }
+    }
 }
