@@ -1,0 +1,70 @@
+﻿@page "/take-quiz/{quizId:int}"
+@using QuizApp.Api
+@using QuizApp.Common.DTO
+@using QuizApp.Common.Request
+@using System.Collections.ObjectModel
+@inject IQuizApiClient apiClient
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+@attribute [StreamRendering]
+@attribute [Authorize]
+
+@if (Questions == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <RadzenDataList Data="@Questions" TItem="QuestionDTO">
+        <Template Context="question">
+            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Left" AlignItems="AlignItems.Start">
+                <h3>@question.Title</h3>
+                <RadzenRadioButtonList Data="@question.Answers" Value="@question.SelectedAnswerId" TValue="int" TextProperty="Text" ValueProperty="Id" Orientation="Orientation.Vertical" />
+            </RadzenStack>
+        </Template>
+    </RadzenDataList>
+
+    <RadzenButton Click="SubmitQuiz" Style="margin-left: 15px">Submit</RadzenButton>
+}
+
+@code {
+    [Parameter] public int QuizId { get; set; }
+
+    private List<QuestionDTO> Questions = new List<QuestionDTO>();
+    private List<AnswerDTO> UserAnswers = new List<AnswerDTO>();
+
+
+    private async Task SubmitQuiz()
+    {
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var questionDTOs = await apiClient.GetQuestionsByQuizIdEndpointAsync(QuizId);
+
+            if (questionDTOs == null)
+            {
+                return;
+            }
+
+            if (questionDTOs.Any())
+            {
+                Questions = new List<QuestionDTO>(questionDTOs);
+                foreach(var a in Questions.SelectMany(s=>s.Answers))
+                {
+                    a.IsCorrect = false;
+                }
+            }
+            else
+            {
+                Questions = new List<QuestionDTO>();
+            }
+
+            StateHasChanged();
+        }
+    }
+}

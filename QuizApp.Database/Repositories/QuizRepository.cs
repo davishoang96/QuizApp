@@ -7,7 +7,7 @@ namespace QuizApp.Database.Repositories;
 public class QuizRepository : IQuizRepository
 {
     private readonly QuizContext db;
-    
+
     public QuizRepository(QuizContext db)
     {
         this.db = db;
@@ -291,10 +291,10 @@ public class QuizRepository : IQuizRepository
     public async Task<IEnumerable<QuestionDTO>> GetQuestionsByQuizId(int quizId)
     {
         var questions = await db.Questions.Where(q => q.QuizId == quizId)
-            .Include(q => q.Answers) 
+            .Include(q => q.Answers)
             .ToListAsync();
 
-        if(questions.Count == 0)
+        if (questions.Count == 0)
         {
             return Enumerable.Empty<QuestionDTO>();
         }
@@ -308,6 +308,7 @@ public class QuizRepository : IQuizRepository
             {
                 Id = a.Id,
                 Text = a.Text,
+                QuestionId = q.Id,
                 IsCorrect = a.IsCorrect
             }).ToList()
         });
