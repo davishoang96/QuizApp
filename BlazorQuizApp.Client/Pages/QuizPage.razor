@@ -24,13 +24,14 @@ else if (!Quizzes.Any())
 }
 else
 {
-    <RadzenDataGrid RowClick="OnRowClick" ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@Quizzes" TItem="QuizDTO">
+    <RadzenDataGrid ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@Quizzes" TItem="QuizDTO">
         <Columns>
             <RadzenDataGridColumn Property="@(nameof(QuizDTO.Name))" Title="Name" Width="140px" />
             <RadzenDataGridColumn Property="@(nameof(QuizDTO.Description))" Title="Description" Filterable="false" />
             <RadzenDataGridColumn Filterable="false" TextAlign="TextAlign.Center">
                 <Template Context="data">
                     <RadzenButton Click="@(() => DeleteQuiz(data.Id.Value))" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 5px" />
+                    <RadzenButton Click="@(() => AddQuestion(data.Id.Value))" Icon="note_add" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 5px" />
                 </Template>
             </RadzenDataGridColumn>
         </Columns>
@@ -74,13 +75,9 @@ else
         }
     }
 
-    private void EditQuiz(int quizId)
+    private void AddQuestion(int quizId)
     {
-        var quizToEdit = Quizzes.FirstOrDefault(q => q.Id == quizId);
-        if (quizToEdit != null)
-        {
-            //SaveQuizModal.Show(quizToEdit);
-        }
+        NavigationManager.NavigateTo($"/add-question/{quizId}");
     }
 
     private async Task DeleteQuiz(int quizId)

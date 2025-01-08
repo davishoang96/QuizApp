@@ -8,17 +8,24 @@
 @inject IQuizApiClient apiClient
 <PageTitle>Home</PageTitle>
 
-<RadzenDataList Data="@Quizzes" TItem="QuizDTO" PageSize="5">
-    <Template Context="quiz">
-        <RadzenCard Variant="Variant.Flat" class="rz-p-3">
-            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Left" AlignItems="AlignItems.Start">
-                <h3>@quiz.Name</h3>
-                <RadzenText>@quiz.Description</RadzenText>
-                <RadzenButton Click="@(() => TakeQuiz(quiz.Id.Value))">Take Quiz</RadzenButton>
-            </RadzenStack>
-        </RadzenCard>
-    </Template>
-</RadzenDataList>
+@if(Quizzes != null)
+{
+    <RadzenDataList Data="@Quizzes" TItem="QuizDTO" PageSize="5">
+        <Template Context="quiz">
+            <RadzenCard Variant="Variant.Flat" class="rz-p-3">
+                <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Left" AlignItems="AlignItems.Start">
+                    <h3>@quiz.Name</h3>
+                    <RadzenText>@quiz.Description</RadzenText>
+                    <RadzenButton Click="@(() => TakeQuiz(quiz.Id.Value))">Take Quiz</RadzenButton>
+                </RadzenStack>
+            </RadzenCard>
+        </Template>
+    </RadzenDataList>
+}
+else
+{
+    <h3>Please login to see quizzes</h3>
+}
 
 @code{
 
@@ -34,7 +41,7 @@
         if (authenticationState is not null)
         {
             var state = await authenticationState;
-            if(state.User.Identity.IsAuthenticated)
+            if (state.User.Identity.IsAuthenticated)
             {
                 var username = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == "nickname")?.Value ?? string.Empty;
                 var userId = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
@@ -46,13 +53,13 @@
                 if (!checkUser)
                 {
                     var createUserRes = await apiClient.CreateUserEndpointAsync(new UserDTO
-                    {
-                        UserId = userId,
-                        Email = email,
-                        FullName = name,
-                        Username = username,
-                        Role = role
-                    });
+                        {
+                            UserId = userId,
+                            Email = email,
+                            FullName = name,
+                            Username = username,
+                            Role = role
+                        });
 
                     if (createUserRes > 0)
                     {
@@ -75,20 +82,27 @@
     {
         if (firstRender)
         {
-            var questionDTOs = await apiClient.GetQuizzesEndpointAsync();
+            if (authenticationState is not null)
+            {
+                var state = await authenticationState;
+                if (state.User.Identity.IsAuthenticated)
+                {
+                    var questionDTOs = await apiClient.GetQuizzesEndpointAsync();
 
-            if (questionDTOs == null)
-            {
-                return;
-            }
+                    if (questionDTOs == null)
+                    {
+                        return;
+                    }
 
-            if (questionDTOs.Any())
-            {
-                Quizzes = new ObservableCollection<QuizDTO>(questionDTOs);
-            }
-            else
-            {
-                Quizzes = new ObservableCollection<QuizDTO>();
+                    if (questionDTOs.Any())
+                    {
+                        Quizzes = new ObservableCollection<QuizDTO>(questionDTOs);
+                    }
+                    else
+                    {
+                        Quizzes = new ObservableCollection<QuizDTO>();
+                    }
+                }
             }
 
             StateHasChanged();
