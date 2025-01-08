@@ -11,6 +11,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="9.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="Radzen.Blazor" Version="5.7.2" />
@@ -19,5 +20,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\QuizApp.Api\QuizApp.Api.csproj" />
 		<ProjectReference Include="..\QuizApp.Common\QuizApp.Common.csproj" />
+		<ProjectReference Include="..\QuizApp.Services\QuizApp.Services.csproj" />
 	</ItemGroup>
 </Project>
