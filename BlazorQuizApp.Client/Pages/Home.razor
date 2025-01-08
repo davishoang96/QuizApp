@@ -4,6 +4,7 @@
 @using System.Collections.ObjectModel
 @using System.Security.Claims
 @inject DialogService DialogService;
+@inject NavigationManager NavigationManager
 @inject IQuizApiClient apiClient
 <PageTitle>Home</PageTitle>
 
@@ -13,7 +14,7 @@
             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Left" AlignItems="AlignItems.Start">
                 <h3>@quiz.Name</h3>
                 <RadzenText>@quiz.Description</RadzenText>
-                <RadzenButton Click="TakeQuiz">Take Quiz</RadzenButton>
+                <RadzenButton Click="@(() => TakeQuiz(quiz.Id.Value))">Take Quiz</RadzenButton>
             </RadzenStack>
         </RadzenCard>
     </Template>
@@ -28,7 +29,7 @@
 
     bool sidebar1Expanded = true;
 
-    private async Task TakeQuiz()
+    private async Task TakeQuiz(int quizId)
     {
         if (authenticationState is not null)
         {
@@ -61,6 +62,10 @@
                     {
                         await DialogService.Alert("User creation failed");
                     }
+                }
+                else
+                {
+                    NavigationManager.NavigateTo($"/take-quiz/{quizId}");
                 }
             }
         }
