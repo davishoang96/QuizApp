@@ -3,11 +3,25 @@
 
 <RadzenLayout>
     <RadzenHeader>
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
-            <RadzenSidebarToggle Click="@(() => Toggle())" />
-            <RadzenLabel Text="Quiz App" />
-            <RadzenLabel Text="@Username" />
-        </RadzenStack>
+        <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+            <RadzenColumn Size="2">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                    <RadzenSidebarToggle Click="@(() => Toggle())" />
+                    <RadzenLabel Text="Quiz App" />
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="2">
+            </RadzenColumn>
+            <RadzenColumn Size="2">
+            </RadzenColumn>
+            <RadzenColumn Size="2">
+            </RadzenColumn>
+            <RadzenColumn Size="2">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Style="margin-right: 50px">
+                    <Login />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
     </RadzenHeader>
     <NavMenu IsSideBarExpanded="sidebar1Expanded" />
     <RadzenBody>
