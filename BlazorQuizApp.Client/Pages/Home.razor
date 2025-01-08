@@ -2,6 +2,7 @@
 @using QuizApp.Api
 @using QuizApp.Common.DTO
 @using System.Collections.ObjectModel
+@using System.Security.Claims
 @inject DialogService DialogService;
 @inject IQuizApiClient apiClient
 <PageTitle>Home</PageTitle>
@@ -12,7 +13,7 @@
             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Left" AlignItems="AlignItems.Start">
                 <h3>@quiz.Name</h3>
                 <RadzenText>@quiz.Description</RadzenText>
-                <RadzenButton>Take Quiz</RadzenButton>
+                <RadzenButton Click="TakeQuiz">Take Quiz</RadzenButton>
             </RadzenStack>
         </RadzenCard>
     </Template>
@@ -21,6 +22,49 @@
 @code{
 
     private ObservableCollection<QuizDTO> Quizzes = new ObservableCollection<QuizDTO>();
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+    bool sidebar1Expanded = true;
+
+    private async Task TakeQuiz()
+    {
+        if (authenticationState is not null)
+        {
+            var state = await authenticationState;
+            if(state.User.Identity.IsAuthenticated)
+            {
+                var username = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == "nickname")?.Value ?? string.Empty;
+                var userId = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+                var email = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value ?? string.Empty;
+                var name = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value ?? string.Empty;
+                var role = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value ?? string.Empty;
+
+                var checkUser = await apiClient.IsUserExistedEndpointAsync(userId);
+                if (!checkUser)
+                {
+                    var createUserRes = await apiClient.CreateUserEndpointAsync(new UserDTO
+                    {
+                        UserId = userId,
+                        Email = email,
+                        FullName = name,
+                        Username = username,
+                        Role = role
+                    });
+
+                    if (createUserRes > 0)
+                    {
+                        await DialogService.Alert("User created successfully");
+                    }
+                    else
+                    {
+                        await DialogService.Alert("User creation failed");
+                    }
+                }
+            }
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
