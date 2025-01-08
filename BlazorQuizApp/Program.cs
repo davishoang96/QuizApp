@@ -13,8 +13,14 @@ using FastEndpoints.Swagger;
 using FastEndpoints.ClientGen;
 using NJsonSchema.CodeGeneration.CSharp;
 using QuizApp.Api;
+using QuizApp.Services;
+using Microsoft.AspNetCore.Authorization;
+using BlazorQuizApp.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<IUserService, UserService>();
+
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
         .ConfigureContainer<ContainerBuilder>(builder =>
         {
@@ -33,6 +39,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddRadzenComponents();
 
 builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, BlazorAuthorizationMiddlewareResultHandler>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 builder.Services.AddAuth0WebAppAuthentication(options =>
 {
@@ -49,13 +56,13 @@ builder.Services.AddFastEndpoints().SwaggerDocument(o =>
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<TokenHandler>();
+builder.Services.AddScoped<CookieHandler>();
 
 var baseUrl = builder.Configuration["BaseUrl"];
 builder.Services.AddHttpClient("QuizAppApi",
       client => client.BaseAddress = new Uri(baseUrl))
-      .AddHttpMessageHandler<TokenHandler>();
-
+      .AddHttpMessageHandler<CookieHandler>();
+builder.Services.AddTransient<CookieHandler>();
 builder.Services.AddScoped<IQuizApiClient>(sp =>
 {
     var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient("QuizAppApi");

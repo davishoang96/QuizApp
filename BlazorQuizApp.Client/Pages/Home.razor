@@ -3,9 +3,11 @@
 @using QuizApp.Common.DTO
 @using System.Collections.ObjectModel
 @using System.Security.Claims
+@using QuizApp.Services
 @inject DialogService DialogService;
 @inject NavigationManager NavigationManager
 @inject IQuizApiClient apiClient
+@inject IUserService userService
 <PageTitle>Home</PageTitle>
 
 @if(Quizzes != null)
@@ -36,46 +38,33 @@ else
 
     bool sidebar1Expanded = true;
 
-    private async Task TakeQuiz(int quizId)
+    protected override async Task OnParametersSetAsync()
     {
+        await base.OnParametersSetAsync();
         if (authenticationState is not null)
         {
             var state = await authenticationState;
             if (state.User.Identity.IsAuthenticated)
             {
-                var username = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == "nickname")?.Value ?? string.Empty;
                 var userId = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
-                var email = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value ?? string.Empty;
-                var name = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value ?? string.Empty;
-                var role = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value ?? string.Empty;
-
                 var checkUser = await apiClient.IsUserExistedEndpointAsync(userId);
                 if (!checkUser)
                 {
-                    var createUserRes = await apiClient.CreateUserEndpointAsync(new UserDTO
-                        {
-                            UserId = userId,
-                            Email = email,
-                            FullName = name,
-                            Username = username,
-                            Role = role
-                        });
-
-                    if (createUserRes > 0)
-                    {
-                        await DialogService.Alert("User created successfully");
-                    }
-                    else
+                    var dto = await userService.CreateUserDTO();
+                    var createUserRes = await apiClient.CreateUserEndpointAsync(dto);
+                    if (createUserRes < 0)
                     {
                         await DialogService.Alert("User creation failed");
                     }
                 }
-                else
-                {
-                    NavigationManager.NavigateTo($"/take-quiz/{quizId}");
-                }
             }
         }
+    }
+
+
+    private void TakeQuiz(int quizId)
+    {
+        NavigationManager.NavigateTo($"/take-quiz/{quizId}");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -88,7 +77,6 @@ else
                 if (state.User.Identity.IsAuthenticated)
                 {
                     var questionDTOs = await apiClient.GetQuizzesEndpointAsync();
-
                     if (questionDTOs == null)
                     {
                         return;
@@ -104,7 +92,6 @@ else
                     }
                 }
             }
-
             StateHasChanged();
         }
     }
