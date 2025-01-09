@@ -70,10 +70,10 @@ public class PersistingRevalidatingAuthenticationStateProvider : RevalidatingSer
 
         if (principal.Identity?.IsAuthenticated == true)
         {
-            var userId = principal.FindFirst(_options.ClaimsIdentity.UserIdClaimType)?.Value;
-            var name = principal.FindFirst("name")?.Value;
-            var email = principal.FindFirst("email")?.Value;
-            var role = principal.Claims.FirstOrDefault()?.Value;
+            var userId = principal.Claims.FirstOrDefault(s => s.Type == ClaimTypes.NameIdentifier)?.Value;
+            var name = principal.Claims.FirstOrDefault(s => s.Type == "name")?.Value;
+            var email = principal.Claims.FirstOrDefault(s => s.Type == ClaimTypes.Email)?.Value;
+            var role = principal.Claims.FirstOrDefault(s => s.Type == ClaimTypes.Role)?.Value;
 
             if (userId != null && name != null)
             {

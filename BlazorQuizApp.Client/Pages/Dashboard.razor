@@ -1,0 +1,115 @@
+﻿@page "/dashboard"
+@using QuizApp.Api
+@using QuizApp.Common.DTO
+@using System.Collections.ObjectModel
+@using QuizApp.Common.Request
+@inject IQuizApiClient apiClient
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+@attribute [StreamRendering]
+@attribute [Authorize]
+
+
+<RadzenTabs Change="@(arg => TabChanged(arg))">
+    <Tabs>
+        <RadzenTabsItem Text="Quiz Manager">
+
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Style="margin-bottom: 10px" Click="AddNewQuiz">Add Quiz</RadzenButton>
+
+            @if (Quizzes == null)
+            {
+                <p>Loading...</p>
+            }
+            else if (!Quizzes.Any())
+            {
+                <p>No quizzes available.</p>
+            }
+            else
+            {
+                <RadzenDataGrid ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@Quizzes" TItem="QuizDTO">
+                    <Columns>
+                        <RadzenDataGridColumn Property="@(nameof(QuizDTO.Name))" Title="Name" Width="140px" />
+                        <RadzenDataGridColumn Property="@(nameof(QuizDTO.Description))" Title="Description" Filterable="false" />
+                        <RadzenDataGridColumn Filterable="false" TextAlign="TextAlign.Center">
+                            <Template Context="data">
+                                <RadzenButton Click="@(() => DeleteQuiz(data.Id.Value))" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 5px" />
+                                <RadzenButton Click="@(() => AddQuestion(data.Id.Value))" Icon="note_add" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 5px" />
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            }
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="Users">
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="Submissions">
+        </RadzenTabsItem>
+    </Tabs>
+</RadzenTabs>
+
+@code {
+
+    private int tabSelectedIndex = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+		await TabChanged(0);
+    }
+
+    private async Task TabChanged(int index)
+    {
+        tabSelectedIndex = index;
+        switch(index)
+        {
+			case 0:
+                var quizDTOs = await apiClient.GetQuizzesEndpointAsync();
+                Quizzes = new ObservableCollection<QuizDTO>(quizDTOs);
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+        }
+        StateHasChanged();
+    }
+
+    private ObservableCollection<QuizDTO> Quizzes { get; set; } = new ObservableCollection<QuizDTO>();
+
+    private async Task AddNewQuiz()
+    {
+        DialogService.OnClose += AddNewQuizClosed;
+        await DialogService.OpenAsync<AddQuiz>("Add New Quiz");
+    }
+
+    private void AddNewQuizClosed(dynamic obj)
+    {
+        var newQuiz = obj as QuizDTO;
+        if (newQuiz is not null)
+        {
+            Quizzes.Add(newQuiz);
+            StateHasChanged();
+        }
+    }
+
+    private void AddQuestion(int quizId)
+    {
+        NavigationManager.NavigateTo($"/add-question/{quizId}");
+    }
+
+    private async Task DeleteQuiz(int quizId)
+    {
+        var result = await apiClient.DeleteQuizEndpointAsync(new DeleteQuizRequest
+        {
+            QuizId = quizId
+        });
+
+        if (result)
+        {
+            var quizToRemove = Quizzes.First(s => s.Id == quizId);
+            Quizzes.Remove(quizToRemove);
+            StateHasChanged();
+            NotificationService.Notify(NotificationSeverity.Success, "Delete quiz successfuly");
+        }
+    }
+}

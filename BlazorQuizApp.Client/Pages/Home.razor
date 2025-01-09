@@ -8,9 +8,18 @@
 @inject NavigationManager NavigationManager
 @inject IQuizApiClient apiClient
 @inject IUserService userService
+@attribute [StreamRendering]
 <PageTitle>Home</PageTitle>
 
-@if(Quizzes != null)
+@if(Quizzes == null)
+{
+	<p>Loading...</p>
+}
+else if(!Quizzes.Any())
+{
+    <h3>Please login to see quizzes</h3>
+}
+else
 {
     <RadzenDataList Data="@Quizzes" TItem="QuizDTO" PageSize="5">
         <Template Context="quiz">
@@ -24,14 +33,10 @@
         </Template>
     </RadzenDataList>
 }
-else
-{
-    <h3>Please login to see quizzes</h3>
-}
 
 @code{
 
-    private ObservableCollection<QuizDTO> Quizzes = new ObservableCollection<QuizDTO>();
+	private ObservableCollection<QuizDTO> Quizzes { get; set; }
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
