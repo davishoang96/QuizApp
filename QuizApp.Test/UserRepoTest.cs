@@ -32,7 +32,7 @@ public sealed class UserRepositoryTest : BaseRepoTest
             await setupContext.Users.AddAsync(new User
             {
                 UserId = "1wXpQEzY3G",
-                FullName = "Crystal Stark",
+                FullName = "Howard Stark",
                 Email = "dav@gmail.com",
                 JoinDate = DateTime.Today.AddDays(-1),
                 Role = "student",
@@ -46,7 +46,7 @@ public sealed class UserRepositoryTest : BaseRepoTest
         var result = await repo.IsUserExist(userId);
 
         // Assert
-        result.Should().Be(expectedResult);
+        result.Should().Be(expectedResult ? 1 : 0);
     }
 
     [Fact]
