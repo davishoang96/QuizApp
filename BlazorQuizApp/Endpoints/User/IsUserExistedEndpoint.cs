@@ -6,7 +6,7 @@ using QuizApp.Database.Repositories;
 namespace BlazorQuizApp.Endpoints.User;
 
 [HttpGet("user/isuserexisted"), Authorize]
-public class IsUserExistedEndpoint : Endpoint<CheckUserExistRequest, bool>
+public class IsUserExistedEndpoint : Endpoint<CheckUserExistRequest, int>
 {
     private readonly IUserRepository userRepository;
     public IsUserExistedEndpoint(IUserRepository userRepository)

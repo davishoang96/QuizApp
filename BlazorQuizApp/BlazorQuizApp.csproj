@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BlazorQuizApp.Client\BlazorQuizApp.Client.csproj" />
+    <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.0" />
   </ItemGroup>
 
@@ -36,6 +37,9 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Endpoints\Answer\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Include="..\BlazorQuizApp.Client\NotAuthorized.razor" Link="NotAuthorized.razor" />
 	</ItemGroup>
 
 </Project>

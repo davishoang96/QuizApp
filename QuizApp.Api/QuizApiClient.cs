@@ -71,12 +71,12 @@ namespace QuizApp.Api
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<bool> IsUserExistedEndpointAsync(string userId);
+        System.Threading.Tasks.Task<int> IsUserExistedEndpointAsync(string userId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<bool> IsUserExistedEndpointAsync(string userId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<int> IsUserExistedEndpointAsync(string userId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -599,7 +599,7 @@ namespace QuizApp.Api
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<bool> IsUserExistedEndpointAsync(string userId)
+        public virtual System.Threading.Tasks.Task<int> IsUserExistedEndpointAsync(string userId)
         {
             return IsUserExistedEndpointAsync(userId, System.Threading.CancellationToken.None);
         }
@@ -607,7 +607,7 @@ namespace QuizApp.Api
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<bool> IsUserExistedEndpointAsync(string userId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<int> IsUserExistedEndpointAsync(string userId, System.Threading.CancellationToken cancellationToken)
         {
             if (userId == null)
                 throw new System.ArgumentNullException("userId");
@@ -654,7 +654,7 @@ namespace QuizApp.Api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<bool>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<int>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);

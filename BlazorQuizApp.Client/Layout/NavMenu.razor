@@ -1,7 +1,11 @@
 ﻿<RadzenSidebar Expanded="IsSideBarExpanded">
     <RadzenPanelMenu>
         <RadzenPanelMenuItem Text="Home" Icon="home" Path="/" />
-        <RadzenPanelMenuItem Text="Dashboard" Path="/dashboard" Icon="dashboard" />
+        <AuthorizeView>
+            <Authorized>
+                <RadzenPanelMenuItem Text="Dashboard" Path="/dashboard" Icon="dashboard" />
+            </Authorized>
+        </AuthorizeView>
     </RadzenPanelMenu>
 </RadzenSidebar>
 

@@ -1,9 +1,11 @@
 ﻿@page "/take-quiz/{quizId:int}"
+@using Blazored.LocalStorage
 @using QuizApp.Api
 @using QuizApp.Common.DTO
 @using QuizApp.Common.Request
 @using System.Collections.ObjectModel
 @inject IQuizApiClient apiClient
+@inject ILocalStorageService localStorage
 @inject DialogService DialogService
 @inject NotificationService NotificationService
 @inject NavigationManager NavigationManager
@@ -32,12 +34,49 @@ else
     [Parameter] public int QuizId { get; set; }
 
     private List<QuestionDTO> Questions = new List<QuestionDTO>();
-    private List<AnswerDTO> UserAnswers = new List<AnswerDTO>();
+    private List<UserAnswerDTO> UserAnswers = new List<UserAnswerDTO>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
 
     private async Task SubmitQuiz()
     {
+        var currentLoginUserId = await localStorage.GetItemAsync<int>("currentLoginUserId");
+        if(currentLoginUserId < 0)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Error", "Cannot find user to submit quiz");
+            return;
+        }
 
+        foreach (var q in Questions)
+        {
+            var userAnswer = new UserAnswerDTO
+            {
+                QuestionId = q.Id,
+                SelectedAnswerId = q.SelectedAnswerId
+            };
+            UserAnswers.Add(userAnswer);
+        }
+
+        var userAnswerRequest = new SaveSubmissionRequest
+        {
+            QuizId = QuizId,
+            UserId = currentLoginUserId,
+            UserAnswerDTOs = UserAnswers
+        };
+
+        var response = await apiClient.SaveSubmissionEndpointAsync(userAnswerRequest);
+        if(response > 0)
+        {
+            NotificationService.Notify(NotificationSeverity.Success, "Success", "Quiz submitted successfully");
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Error", "Failed to submit quiz");
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

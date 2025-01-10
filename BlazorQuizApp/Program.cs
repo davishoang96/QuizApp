@@ -16,6 +16,7 @@ using QuizApp.Api;
 using QuizApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using BlazorQuizApp.Authentication;
+using Blazored.LocalStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddRadzenComponents();
+builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, BlazorAuthorizationMiddlewareResultHandler>();
