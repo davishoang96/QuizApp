@@ -1,23 +1,27 @@
 ﻿@page "/"
+@using Blazored.LocalStorage
 @using QuizApp.Api
 @using QuizApp.Common.DTO
 @using System.Collections.ObjectModel
 @using System.Security.Claims
 @using QuizApp.Services
-@inject DialogService DialogService;
-@inject NavigationManager NavigationManager
+@inject DialogService dialogService;
+@inject NavigationManager navigationManager
 @inject IQuizApiClient apiClient
+@inject ILocalStorageService localStorage
 @inject IUserService userService
 @attribute [StreamRendering]
+@attribute [Authorize]
+
 <PageTitle>Home</PageTitle>
 
 @if(Quizzes == null)
 {
-	<p>Loading...</p>
+    <p>Loading...</p>
 }
 else if(!Quizzes.Any())
 {
-    <h3>Please login to see quizzes</h3>
+    <h3>Awesome!!! You don't have any quiz to take'</h3>
 }
 else
 {
@@ -36,7 +40,7 @@ else
 
 @code{
 
-	private ObservableCollection<QuizDTO> Quizzes { get; set; }
+    private ObservableCollection<QuizDTO> Quizzes { get; set; }
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
@@ -51,25 +55,40 @@ else
             var state = await authenticationState;
             if (state.User.Identity.IsAuthenticated)
             {
-                var userId = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
-                var checkUser = await apiClient.IsUserExistedEndpointAsync(userId);
-                if (!checkUser)
+                var nameIdentifier = state?.User?.Claims.ToList().FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+                var currentLoginUserId = await apiClient.IsUserExistedEndpointAsync(nameIdentifier);
+                if (currentLoginUserId == 0)
                 {
                     var dto = await userService.CreateUserDTO();
-                    var createUserRes = await apiClient.CreateUserEndpointAsync(dto);
-                    if (createUserRes < 0)
+                    currentLoginUserId = await apiClient.CreateUserEndpointAsync(dto);
+                    if (currentLoginUserId < 0)
                     {
-                        await DialogService.Alert("User creation failed");
+                        await dialogService.Alert("User creation failed");
+                        return;
                     }
                 }
+                await SetItem(currentLoginUserId);
             }
         }
     }
 
+    // TODO: Refactor. 
+    // Blazor Server JWT error: JavaScript interop calls cannot be issued at this time
+    private async Task SetItem(int userId)
+    {
+        try
+        {
+            await localStorage.SetItemAsync("currentLoginUserId", userId);
+        }
+        catch
+        {
+
+        }
+    }
 
     private void TakeQuiz(int quizId)
     {
-        NavigationManager.NavigateTo($"/take-quiz/{quizId}");
+        navigationManager.NavigateTo($"/take-quiz/{quizId}");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

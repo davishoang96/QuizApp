@@ -5,5 +5,5 @@ namespace QuizApp.Database.Repositories;
 public interface IUserRepository
 {
     Task<int> CreateUser(UserDTO createUserDTO);
-    Task<bool> IsUserExist(string userId);
-} 
+    Task<int> IsUserExist(string userId);
+}

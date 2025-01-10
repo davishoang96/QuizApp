@@ -7,7 +7,7 @@ namespace QuizApp.Database.Repositories;
 public class UserRepository : IUserRepository
 {
     private readonly QuizContext db;
-    
+
     public UserRepository(QuizContext db)
     {
         this.db = db;
@@ -20,7 +20,7 @@ public class UserRepository : IUserRepository
             UserId = createUserDTO.UserId,
             FullName = createUserDTO.FullName,
             Username = createUserDTO.Username,
-            Role = createUserDTO.Role,
+            Role = createUserDTO.Role ?? "Student",
             Email = createUserDTO.Email,
             JoinDate = DateTime.Now,
         });
@@ -30,8 +30,14 @@ public class UserRepository : IUserRepository
         return user.Entity.Id;
     }
 
-    public async Task<bool> IsUserExist(string userId)
+    public async Task<int> IsUserExist(string userId)
     {
-        return await db.Users.AnyAsync(u => u.UserId == userId);
+        var user = await db.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+        if (user != null && user.Id > 0)
+        {
+            return user.Id;
+        }
+
+        return 0;
     }
 }

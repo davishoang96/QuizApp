@@ -2,7 +2,7 @@
 @using QuizApp.Common.DTO
 @inject IQuizApiClient apiClient
 @inject DialogService dialogService
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")]
 
 <RadzenStack>
 	<RadzenTextArea Rows="1" @bind-Value="@Quiz.Name" Placeholder="Name"></RadzenTextArea>
