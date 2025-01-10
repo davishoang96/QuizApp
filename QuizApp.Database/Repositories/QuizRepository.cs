@@ -262,7 +262,7 @@ public class QuizRepository : IQuizRepository
         db.Submissions.Add(submission);
         await db.SaveChangesAsync();
 
-        return submission.Id;
+        return (int)submission.Score;
     }
 
     public async Task<IEnumerable<QuizDTO>> GetAllQuizzes()

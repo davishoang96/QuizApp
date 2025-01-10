@@ -137,7 +137,7 @@ await app.GenerateClientsAndExitAsync(
         c.InjectHttpClient = true;
         c.GenerateClientInterfaces = true;
         c.GenerateDtoTypes = false;
-        c.AdditionalNamespaceUsages = ["QuizApp.Common.DTO", "QuizApp.Common.Request"];
+        c.AdditionalNamespaceUsages = ["QuizApp.Common.DTO", "QuizApp.Common.Request", "QuizApp.Common.Response"];
         c.CSharpGeneratorSettings.Namespace = "QuizApp.Api";
         c.CSharpGeneratorSettings.JsonLibrary = CSharpJsonLibrary.NewtonsoftJson;
     },
