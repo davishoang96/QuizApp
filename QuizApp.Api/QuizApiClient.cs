@@ -6,6 +6,7 @@
 
 using QuizApp.Common.DTO;
 using QuizApp.Common.Request;
+using QuizApp.Common.Response;
 
 #pragma warning disable 108 // Disable "CS0108 '{derivedDto}.ToJson()' hides inherited member '{dtoBase}.ToJson()'. Use the new keyword if hiding was intended."
 #pragma warning disable 114 // Disable "CS0114 '{derivedDto}.RaisePropertyChanged(String)' hides inherited member 'dtoBase.RaisePropertyChanged(String)'. To make the current member override that implementation, add the override keyword. Otherwise add the new keyword."
@@ -80,12 +81,12 @@ namespace QuizApp.Api
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<int> SaveSubmissionEndpointAsync(SaveSubmissionRequest saveSubmissionRequest);
+        System.Threading.Tasks.Task<SaveSubmissionResponse> SaveSubmissionEndpointAsync(SaveSubmissionRequest saveSubmissionRequest);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<int> SaveSubmissionEndpointAsync(SaveSubmissionRequest saveSubmissionRequest, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<SaveSubmissionResponse> SaveSubmissionEndpointAsync(SaveSubmissionRequest saveSubmissionRequest, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -689,7 +690,7 @@ namespace QuizApp.Api
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<int> SaveSubmissionEndpointAsync(SaveSubmissionRequest saveSubmissionRequest)
+        public virtual System.Threading.Tasks.Task<SaveSubmissionResponse> SaveSubmissionEndpointAsync(SaveSubmissionRequest saveSubmissionRequest)
         {
             return SaveSubmissionEndpointAsync(saveSubmissionRequest, System.Threading.CancellationToken.None);
         }
@@ -697,7 +698,7 @@ namespace QuizApp.Api
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<int> SaveSubmissionEndpointAsync(SaveSubmissionRequest saveSubmissionRequest, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<SaveSubmissionResponse> SaveSubmissionEndpointAsync(SaveSubmissionRequest saveSubmissionRequest, System.Threading.CancellationToken cancellationToken)
         {
             if (saveSubmissionRequest == null)
                 throw new System.ArgumentNullException("saveSubmissionRequest");
@@ -745,7 +746,7 @@ namespace QuizApp.Api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<int>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<SaveSubmissionResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);

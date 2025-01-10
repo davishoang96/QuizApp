@@ -22,7 +22,7 @@ else
         <Template Context="question">
             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Left" AlignItems="AlignItems.Start">
                 <h3>@question.Title</h3>
-                <RadzenRadioButtonList Data="@question.Answers" Value="@question.SelectedAnswerId" TValue="int" TextProperty="Text" ValueProperty="Id" Orientation="Orientation.Vertical" />
+                <RadzenRadioButtonList Data="@question.Answers" @bind-value="@question.SelectedAnswerId" TValue="int" TextProperty="Text" ValueProperty="Id" Orientation="Orientation.Vertical" />
             </RadzenStack>
         </Template>
     </RadzenDataList>
@@ -43,6 +43,13 @@ else
 
     private async Task SubmitQuiz()
     {
+        // Confirm submission
+        var confirm = await DialogService.Confirm("Are you sure you want to submit the quiz?", "Submit Quiz");
+        if (confirm == false)
+        {
+            return;
+        }
+
         var currentLoginUserId = await localStorage.GetItemAsync<int>("currentLoginUserId");
         if(currentLoginUserId < 0)
         {
@@ -68,16 +75,22 @@ else
         };
 
         var response = await apiClient.SaveSubmissionEndpointAsync(userAnswerRequest);
-        if(response > 0)
+        if(response != null)
         {
             NotificationService.Notify(NotificationSeverity.Success, "Success", "Quiz submitted successfully");
-            NavigationManager.NavigateTo("/");
+            DialogService.OnClose += OnScorePopupClosed;
+            await DialogService.OpenAsync<ScorePopup>("Congratulation!", new Dictionary<string, object> { { "Score", response.Score } });
         }
         else
         {
             NotificationService.Notify(NotificationSeverity.Error, "Error", "Failed to submit quiz");
         }
     }
+
+    private void OnScorePopupClosed(dynamic obj)
+    {
+        NavigationManager.NavigateTo("/");
+    }   
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
